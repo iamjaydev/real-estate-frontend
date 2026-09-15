@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, FormEvent, ChangeEvent } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-type UserRole = "customer" | "broker";
+import { registerUser } from "@/lib/api/auth";
+import type { RegisterRequest } from "@/lib/api/auth";
+import { useAuthStore } from "@/stores/authStore";
 
 interface FormErrors {
   name?: string;
@@ -13,11 +16,14 @@ interface FormErrors {
 }
 
 export default function RegisterPage() {
-  const [formData, setFormData] = useState({
+  const router = useRouter();
+  const setAuth = useAuthStore((state) => state.setAuth);
+
+  const [formData, setFormData] = useState<RegisterRequest>({
     name: "",
     email: "",
     password: "",
-    role: "customer" as UserRole,
+    role: "customer",
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -29,7 +35,6 @@ export default function RegisterPage() {
   }>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [submittedSuccess, setSubmittedSuccess] = useState(false);
 
   const validateName = (name: string): string | undefined => {
     if (!name.trim()) {
@@ -127,13 +132,30 @@ export default function RegisterPage() {
     }
 
     setIsLoading(true);
-    setSubmittedSuccess(false);
+    setErrors({});
 
-    // Simulate a frontend loading/submitting state
-    setTimeout(() => {
+    try {
+      const response = await registerUser(formData);
+
+      setAuth(response.access_token, formData.role);
+
+      if (formData.role === "broker") {
+        router.push("/broker");
+      } else {
+        router.push("/customer");
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Registration failed. Please try again.";
+
+      setErrors({
+        email: message,
+      });
+    } finally {
       setIsLoading(false);
-      setSubmittedSuccess(true);
-    }, 1200);
+    }
   };
 
   return (
@@ -164,18 +186,9 @@ export default function RegisterPage() {
             Join us to explore properties and manage listings.
           </p>
         </div>
-
+        
         {/* Card Container */}
         <div className="bg-white dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 sm:p-8 shadow-xl shadow-zinc-200/50 dark:shadow-none backdrop-blur-sm">
-          {submittedSuccess && (
-            <div className="mb-6 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-sm flex items-center gap-3">
-              <svg className="w-5 h-5 shrink-0 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-              </svg>
-              <span>Account details validated successfully. Ready for registration connection.</span>
-            </div>
-          )}
-
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
             {/* Name Field */}
             <div className="space-y-1.5">
@@ -186,23 +199,23 @@ export default function RegisterPage() {
                 Full Name
               </label>
               <div className="relative">
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  placeholder="John Doe"
-                  autoComplete="name"
-                  className={`w-full px-3.5 py-2.5 rounded-xl border text-sm transition-colors outline-none bg-zinc-50/50 dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 ${
-                    errors.name
-                      ? "border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-red-500"
-                      : "border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder="John Doe"
+                autoComplete="name"
+                className={`w-full px-3.5 py-2.5 rounded-xl border text-sm transition-colors outline-none bg-zinc-50/50 dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 ${
+                  errors.name
+                  ? "border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-red-500"
+                  : "border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
                   }`}
-                  aria-invalid={Boolean(errors.name)}
-                  aria-describedby={errors.name ? "name-error" : undefined}
-                />
+                aria-invalid={Boolean(errors.name)}
+                aria-describedby={errors.name ? "name-error" : undefined}
+              />
               </div>
               {errors.name && (
                 <p id="name-error" className="text-xs text-red-600 dark:text-red-400 flex items-center gap-1 mt-1">
@@ -223,23 +236,23 @@ export default function RegisterPage() {
                 Email address
               </label>
               <div className="relative">
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  placeholder="name@example.com"
-                  autoComplete="email"
-                  className={`w-full px-3.5 py-2.5 rounded-xl border text-sm transition-colors outline-none bg-zinc-50/50 dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 ${
-                    errors.email
-                      ? "border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-red-500"
-                      : "border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder="name@example.com"
+                autoComplete="email"
+                className={`w-full px-3.5 py-2.5 rounded-xl border text-sm transition-colors outline-none bg-zinc-50/50 dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 ${
+                  errors.email
+                  ? "border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-red-500"
+                  : "border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
                   }`}
-                  aria-invalid={Boolean(errors.email)}
-                  aria-describedby={errors.email ? "email-error" : undefined}
-                />
+                aria-invalid={Boolean(errors.email)}
+                aria-describedby={errors.email ? "email-error" : undefined}
+              />
               </div>
               {errors.email && (
                 <p id="email-error" className="text-xs text-red-600 dark:text-red-400 flex items-center gap-1 mt-1">
@@ -271,15 +284,15 @@ export default function RegisterPage() {
                   autoComplete="new-password"
                   className={`w-full px-3.5 py-2.5 pr-10 rounded-xl border text-sm transition-colors outline-none bg-zinc-50/50 dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 ${
                     errors.password
-                      ? "border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-red-500"
-                      : "border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
-                  }`}
+                    ? "border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-red-500"
+                    : "border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
+                    }`}
                   aria-invalid={Boolean(errors.password)}
                   aria-describedby={errors.password ? "password-error" : undefined}
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={() => setShowPassword((prev) => !prev)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors p-1"
                 >
@@ -313,11 +326,10 @@ export default function RegisterPage() {
               <div className="grid grid-cols-2 gap-3">
                 <label
                   htmlFor="role-customer"
-                  className={`relative flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition-all ${
-                    formData.role === "customer"
-                      ? "border-blue-600 bg-blue-50/50 dark:bg-blue-950/20 text-blue-900 dark:text-blue-100 ring-2 ring-blue-600/20"
-                      : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 bg-zinc-50/30 dark:bg-zinc-800/30 text-zinc-700 dark:text-zinc-300"
-                  }`}
+                  className={`relative flex items-center p-3.5 rounded-xl border cursor-pointer transition-all ${formData.role === "customer"
+                    ? "border-blue-600 bg-blue-50/50 dark:bg-blue-950/20 text-blue-900 dark:text-blue-100 ring-2 ring-blue-600/20"
+                    : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 bg-zinc-50/30 dark:bg-zinc-800/30 text-zinc-700 dark:text-zinc-300"
+                    }`}
                 >
                   <div className="flex items-center gap-2.5">
                     <input
@@ -336,11 +348,10 @@ export default function RegisterPage() {
 
                 <label
                   htmlFor="role-broker"
-                  className={`relative flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition-all ${
-                    formData.role === "broker"
-                      ? "border-blue-600 bg-blue-50/50 dark:bg-blue-950/20 text-blue-900 dark:text-blue-100 ring-2 ring-blue-600/20"
-                      : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 bg-zinc-50/30 dark:bg-zinc-800/30 text-zinc-700 dark:text-zinc-300"
-                  }`}
+                  className={`relative flex items-center p-3.5 rounded-xl border cursor-pointer transition-all ${formData.role === "broker"
+                    ? "border-blue-600 bg-blue-50/50 dark:bg-blue-950/20 text-blue-900 dark:text-blue-100 ring-2 ring-blue-600/20"
+                    : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 bg-zinc-50/30 dark:bg-zinc-800/30 text-zinc-700 dark:text-zinc-300"
+                    }`}
                 >
                   <div className="flex items-center gap-2.5">
                     <input
@@ -357,7 +368,7 @@ export default function RegisterPage() {
                   </div>
                 </label>
               </div>
-              {errors.role && (
+                {errors.role && (
                 <p id="role-error" className="text-xs text-red-600 dark:text-red-400 flex items-center gap-1 mt-1">
                   <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
@@ -373,7 +384,7 @@ export default function RegisterPage() {
               disabled={isLoading}
               className="w-full flex items-center justify-center py-2.5 px-4 rounded-xl font-medium text-sm text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-md shadow-blue-500/20 focus:outline-none focus:ring-4 focus:ring-blue-600/20 cursor-pointer"
             >
-              {isLoading ? (
+                        {isLoading ? (
                 <span className="inline-flex items-center gap-2">
                   <svg
                     className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"

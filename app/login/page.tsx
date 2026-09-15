@@ -2,6 +2,9 @@
 
 import { useState, FormEvent, ChangeEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { loginUser } from "@/lib/api/auth";
+import { useAuthStore } from "@/stores/authStore";
 
 interface FormErrors {
   email?: string;
@@ -9,16 +12,23 @@ interface FormErrors {
 }
 
 export default function LoginPage() {
+  const router = useRouter();
+  const setAuth = useAuthStore((state) => state.setAuth);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
-  const [touched, setTouched] = useState<{ email?: boolean; password?: boolean }>({});
+
+  const [touched, setTouched] = useState<{
+    email?: boolean;
+    password?: boolean;
+  }>({});
+
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [submittedSuccess, setSubmittedSuccess] = useState(false);
+  const [authError, setAuthError] = useState("");
 
   const validateEmail = (email: string): string | undefined => {
     if (!email.trim()) {
@@ -62,6 +72,10 @@ export default function LoginPage() {
         setErrors((prev) => ({ ...prev, password: validatePassword(value) }));
       }
     }
+
+    if (authError) {
+      setAuthError("");
+    }
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -77,20 +91,39 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setTouched({ email: true, password: true });
+
+    setTouched({
+      email: true,
+      password: true,
+    });
+
+    setAuthError("");
 
     if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
-    setSubmittedSuccess(false);
 
-    // Simulate a frontend loading/submitting state
-    setTimeout(() => {
+    try {
+      const response = await loginUser({
+        email: formData.email.trim(),
+        password: formData.password,
+      });
+
+      // Temporary until the backend provides the user's actual role.
+      setAuth(response.access_token, "customer");
+
+      router.push("/customer");
+    } catch (error) {
+      setAuthError(
+        error instanceof Error
+          ? error.message
+          : "Login failed. Please try again."
+      );
+    } finally {
       setIsLoading(false);
-      setSubmittedSuccess(true);
-    }, 1200);
+    }
   };
 
   return (
@@ -124,12 +157,9 @@ export default function LoginPage() {
 
         {/* Card Container */}
         <div className="bg-white dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 sm:p-8 shadow-xl shadow-zinc-200/50 dark:shadow-none backdrop-blur-sm">
-          {submittedSuccess && (
-            <div className="mb-6 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-sm flex items-center gap-3">
-              <svg className="w-5 h-5 shrink-0 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-              </svg>
-              <span>Form validated successfully. Ready for authentication connection.</span>
+          {authError && (
+            <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300 text-sm">
+              {authError}
             </div>
           )}
 
@@ -152,11 +182,10 @@ export default function LoginPage() {
                   onBlur={handleBlur}
                   placeholder="name@example.com"
                   autoComplete="email"
-                  className={`w-full px-3.5 py-2.5 rounded-xl border text-sm transition-colors outline-none bg-zinc-50/50 dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 ${
-                    errors.email
+                  className={`w-full px-3.5 py-2.5 rounded-xl border text-sm transition-colors outline-none bg-zinc-50/50 dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 ${errors.email
                       ? "border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-red-500"
                       : "border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
-                  }`}
+                    }`}
                   aria-invalid={Boolean(errors.email)}
                   aria-describedby={errors.email ? "email-error" : undefined}
                 />
@@ -191,11 +220,10 @@ export default function LoginPage() {
                   onBlur={handleBlur}
                   placeholder="Enter your password"
                   autoComplete="current-password"
-                  className={`w-full px-3.5 py-2.5 pr-10 rounded-xl border text-sm transition-colors outline-none bg-zinc-50/50 dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 ${
-                    errors.password
+                  className={`w-full px-3.5 py-2.5 pr-10 rounded-xl border text-sm transition-colors outline-none bg-zinc-50/50 dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 ${errors.password
                       ? "border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-red-500"
                       : "border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
-                  }`}
+                    }`}
                   aria-invalid={Boolean(errors.password)}
                   aria-describedby={errors.password ? "password-error" : undefined}
                 />
