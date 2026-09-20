@@ -1,0 +1,59 @@
+import { cn } from "@/lib/utils";
+import ChatHeader from "./ChatHeader";
+import ChatInput from "./ChatInput";
+import ChatMessages from "./ChatArea";
+import { MOCK_MESSAGES } from "./mock-messages";
+
+type AiChatProps = {
+  isCollapsed: boolean;
+  onToggle: () => void;
+};
+
+export default function AiChat({ isCollapsed, onToggle }: AiChatProps) {
+  const handleSend = (text: string) => {
+    console.log(text);
+  };
+
+  return (
+    <aside
+      data-collapsed={isCollapsed}
+      className={cn(
+        // base + glass
+        "glass absolute inset-x-0 bottom-0 z-20 flex flex-col overflow-hidden",
+
+        // animation
+        "transition-transform duration-500 ease-in-out [--chat-header-h:4rem]",
+
+        // mobile sheet
+        "shadow-chat-sheet h-1/2 rounded-t-3xl",
+
+        // mobile collapse
+        "data-[collapsed=true]:translate-y-[calc(100%-var(--chat-header-h))]",
+
+        // desktop layout
+        "lg:shadow-chat-panel lg:inset-y-4 lg:right-auto lg:left-4 lg:h-auto lg:w-[380px] lg:rounded-3xl",
+
+        // desktop collapse
+        "lg:data-[collapsed=true]:translate-x-[calc(-100%+2.75rem)] lg:data-[collapsed=true]:translate-y-0",
+
+        // wide desktop
+        "xl:w-[400px]",
+      )}
+    >
+      <ChatHeader isCollapsed={isCollapsed} onToggle={onToggle} />
+
+      <div
+        className={cn(
+          "flex flex-1 flex-col overflow-hidden transition-opacity duration-300",
+          isCollapsed ? "pointer-events-none opacity-0" : "opacity-100",
+        )}
+      >
+        <div className="min-h-0 flex-1 overflow-hidden">
+          <ChatMessages messages={MOCK_MESSAGES} />
+        </div>
+
+        <ChatInput onSend={handleSend} />
+      </div>
+    </aside>
+  );
+}
