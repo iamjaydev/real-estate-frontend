@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  APIProvider,
-  AdvancedMarker,
-  Map,
-} from "@vis.gl/react-google-maps";
-
+import { APIProvider, AdvancedMarker, Map } from "@vis.gl/react-google-maps";
 
 const DEFAULT_CENTER = {
   lat: 21.1702,
@@ -95,7 +90,7 @@ export default function GoogleMap() {
           >
             <div className="relative flex size-11 items-center justify-center">
               {/* Marker circle */}
-              <div className="flex size-11 items-center justify-center rounded-full border-4 border-white bg-accent text-white shadow-lg">
+              <div className="bg-accent flex size-11 items-center justify-center rounded-full border-4 border-white text-white shadow-lg">
                 <svg
                   viewBox="0 0 24 24"
                   className="size-5"
@@ -113,7 +108,7 @@ export default function GoogleMap() {
               </div>
 
               {/* Pin pointer */}
-              <div className="absolute -bottom-1 h-3 w-3 rotate-45 border-r-4 border-b-4 border-white bg-accent" />
+              <div className="bg-accent absolute -bottom-1 h-3 w-3 rotate-45 border-r-4 border-b-4 border-white" />
             </div>
           </AdvancedMarker>
         ))}

@@ -13,7 +13,10 @@ interface ImageUploadProps {
   multiple?: boolean;
 }
 
-export default function ImageUpload({ onImagesChange, multiple = true }: ImageUploadProps) {
+export default function ImageUpload({
+  onImagesChange,
+  multiple = true,
+}: ImageUploadProps) {
   const [images, setImages] = useState<UploadedFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -87,17 +90,17 @@ export default function ImageUpload({ onImagesChange, multiple = true }: ImageUp
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-4">
+    <div className="mx-auto w-full max-w-2xl space-y-4">
       {/* Dropzone */}
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
-        className={`flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+        className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-colors ${
           isDragging
             ? "border-blue-500 bg-blue-50/50 dark:bg-blue-950/20"
-            : "border-zinc-300 hover:border-zinc-400 bg-zinc-50 hover:bg-zinc-100/80 dark:border-zinc-700 dark:bg-zinc-900/50 dark:hover:bg-zinc-900"
+            : "border-zinc-300 bg-zinc-50 hover:border-zinc-400 hover:bg-zinc-100/80 dark:border-zinc-700 dark:bg-zinc-900/50 dark:hover:bg-zinc-900"
         }`}
       >
         <input
@@ -109,7 +112,7 @@ export default function ImageUpload({ onImagesChange, multiple = true }: ImageUp
           className="hidden"
         />
         <svg
-          className="w-10 h-10 mb-3 text-zinc-400 dark:text-zinc-500"
+          className="mb-3 h-10 w-10 text-zinc-400 dark:text-zinc-500"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -122,7 +125,10 @@ export default function ImageUpload({ onImagesChange, multiple = true }: ImageUp
           />
         </svg>
         <p className="mb-1 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          <span className="font-semibold text-blue-600 dark:text-blue-400">Click to upload</span> or drag and drop
+          <span className="font-semibold text-blue-600 dark:text-blue-400">
+            Click to upload
+          </span>{" "}
+          or drag and drop
         </p>
         <p className="text-xs text-zinc-500 dark:text-zinc-400">
           PNG, JPG, GIF, WEBP, SVG
@@ -131,35 +137,47 @@ export default function ImageUpload({ onImagesChange, multiple = true }: ImageUp
 
       {/* Previews */}
       {images.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
           {images.map((image) => (
             <div
               key={image.id}
-              className="relative group rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 aspect-square"
+              className="group relative aspect-square overflow-hidden rounded-lg border border-zinc-200 bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={image.previewUrl}
                 alt={image.file.name}
-                className="w-full h-full object-cover"
+                className="h-full w-full object-cover"
               />
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
+              <div className="absolute inset-0 flex flex-col justify-between bg-black/50 p-2 opacity-0 transition-opacity group-hover:opacity-100">
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleRemoveImage(image.id);
                   }}
-                  className="self-end p-1 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors"
+                  className="self-end rounded-full bg-red-600 p-1 text-white transition-colors hover:bg-red-700"
                   aria-label="Remove image"
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="h-3.5 w-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
-                <div className="text-[10px] text-white truncate drop-shadow">
-                  <p className="font-medium truncate">{image.file.name}</p>
-                  <p className="opacity-80">{formatFileSize(image.file.size)}</p>
+                <div className="truncate text-[10px] text-white drop-shadow">
+                  <p className="truncate font-medium">{image.file.name}</p>
+                  <p className="opacity-80">
+                    {formatFileSize(image.file.size)}
+                  </p>
                 </div>
               </div>
             </div>

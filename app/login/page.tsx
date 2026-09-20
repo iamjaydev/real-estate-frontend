@@ -119,7 +119,7 @@ export default function LoginPage() {
       setAuthError(
         error instanceof Error
           ? error.message
-          : "Login failed. Please try again."
+          : "Login failed. Please try again.",
       );
     } finally {
       setIsLoading(false);
@@ -127,13 +127,13 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col justify-center items-center px-4 py-12 bg-gradient-to-br from-zinc-50 via-white to-zinc-100 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-zinc-50 via-white to-zinc-100 px-4 py-12 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
       <div className="w-full max-w-md">
         {/* Brand / Header Icon */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-500/20 mb-4">
+        <div className="mb-8 text-center">
+          <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-500/20">
             <svg
-              className="w-6 h-6"
+              className="h-6 w-6"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -150,15 +150,15 @@ export default function LoginPage() {
           <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">
             Login
           </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">
+          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
             Welcome back! Please enter your details.
           </p>
         </div>
 
         {/* Card Container */}
-        <div className="bg-white dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 sm:p-8 shadow-xl shadow-zinc-200/50 dark:shadow-none backdrop-blur-sm">
+        <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl shadow-zinc-200/50 backdrop-blur-sm sm:p-8 dark:border-zinc-800 dark:bg-zinc-900/90 dark:shadow-none">
           {authError && (
-            <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300 text-sm">
+            <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
               {authError}
             </div>
           )}
@@ -182,18 +182,30 @@ export default function LoginPage() {
                   onBlur={handleBlur}
                   placeholder="name@example.com"
                   autoComplete="email"
-                  className={`w-full px-3.5 py-2.5 rounded-xl border text-sm transition-colors outline-none bg-zinc-50/50 dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 ${errors.email
+                  className={`w-full rounded-xl border bg-zinc-50/50 px-3.5 py-2.5 text-sm text-zinc-900 transition-colors outline-none placeholder:text-zinc-400 dark:bg-zinc-800/50 dark:text-zinc-100 dark:placeholder:text-zinc-500 ${
+                    errors.email
                       ? "border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-red-500"
-                      : "border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
-                    }`}
+                      : "border-zinc-300 hover:border-zinc-400 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 dark:border-zinc-700 dark:hover:border-zinc-600"
+                  }`}
                   aria-invalid={Boolean(errors.email)}
                   aria-describedby={errors.email ? "email-error" : undefined}
                 />
               </div>
               {errors.email && (
-                <p id="email-error" className="text-xs text-red-600 dark:text-red-400 flex items-center gap-1 mt-1">
-                  <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                <p
+                  id="email-error"
+                  className="mt-1 flex items-center gap-1 text-xs text-red-600 dark:text-red-400"
+                >
+                  <svg
+                    className="h-3.5 w-3.5 shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   {errors.email}
                 </p>
@@ -220,35 +232,74 @@ export default function LoginPage() {
                   onBlur={handleBlur}
                   placeholder="Enter your password"
                   autoComplete="current-password"
-                  className={`w-full px-3.5 py-2.5 pr-10 rounded-xl border text-sm transition-colors outline-none bg-zinc-50/50 dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 ${errors.password
+                  className={`w-full rounded-xl border bg-zinc-50/50 px-3.5 py-2.5 pr-10 text-sm text-zinc-900 transition-colors outline-none placeholder:text-zinc-400 dark:bg-zinc-800/50 dark:text-zinc-100 dark:placeholder:text-zinc-500 ${
+                    errors.password
                       ? "border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 dark:border-red-500"
-                      : "border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10"
-                    }`}
+                      : "border-zinc-300 hover:border-zinc-400 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 dark:border-zinc-700 dark:hover:border-zinc-600"
+                  }`}
                   aria-invalid={Boolean(errors.password)}
-                  aria-describedby={errors.password ? "password-error" : undefined}
+                  aria-describedby={
+                    errors.password ? "password-error" : undefined
+                  }
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors p-1"
+                  className="absolute top-1/2 right-3 -translate-y-1/2 p-1 text-zinc-400 transition-colors hover:text-zinc-600 dark:hover:text-zinc-200"
                 >
                   {showPassword ? (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"
+                      />
                     </svg>
                   ) : (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
                     </svg>
                   )}
                 </button>
               </div>
               {errors.password && (
-                <p id="password-error" className="text-xs text-red-600 dark:text-red-400 flex items-center gap-1 mt-1">
-                  <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                <p
+                  id="password-error"
+                  className="mt-1 flex items-center gap-1 text-xs text-red-600 dark:text-red-400"
+                >
+                  <svg
+                    className="h-3.5 w-3.5 shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   {errors.password}
                 </p>
@@ -259,12 +310,12 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center py-2.5 px-4 rounded-xl font-medium text-sm text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed transition-all shadow-md shadow-blue-500/20 focus:outline-none focus:ring-4 focus:ring-blue-600/20 cursor-pointer"
+              className="flex w-full cursor-pointer items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-md shadow-blue-500/20 transition-all hover:bg-blue-700 focus:ring-4 focus:ring-blue-600/20 focus:outline-none active:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isLoading ? (
                 <span className="inline-flex items-center gap-2">
                   <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    className="mr-2 -ml-1 h-4 w-4 animate-spin text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -292,12 +343,12 @@ export default function LoginPage() {
           </form>
 
           {/* Register Link */}
-          <div className="mt-6 pt-5 border-t border-zinc-100 dark:border-zinc-800 text-center">
+          <div className="mt-6 border-t border-zinc-100 pt-5 text-center dark:border-zinc-800">
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
               Don&apos;t have an account?{" "}
               <Link
                 href="/register"
-                className="font-semibold text-blue-600 dark:text-blue-400 hover:underline hover:text-blue-700 dark:hover:text-blue-300 transition-colors ml-1"
+                className="ml-1 font-semibold text-blue-600 transition-colors hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
               >
                 Register
               </Link>

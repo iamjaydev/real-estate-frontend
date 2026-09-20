@@ -2,7 +2,8 @@ import { cn } from "@/lib/utils";
 import type { Message } from "./types";
 
 const BUBBLE_STYLES = {
-  assistant: "rounded-tl-md border border-slate-100 bg-[#F8FAFC] text-slate-800",
+  assistant:
+    "rounded-tl-md border border-slate-100 bg-[#F8FAFC] text-slate-800",
   user: "rounded-tr-md bg-[#1E1E24] text-white",
 } as const satisfies Record<Message["role"], string>;
 

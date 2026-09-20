@@ -11,10 +11,7 @@ interface AuthGuardProps {
   allowedRole: UserRole;
 }
 
-export default function AuthGuard({
-  children,
-  allowedRole,
-}: AuthGuardProps) {
+export default function AuthGuard({ children, allowedRole }: AuthGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -34,7 +31,7 @@ export default function AuthGuard({
 
   if (!accessToken || userRole !== allowedRole) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <p className="text-sm text-zinc-500">Checking authentication...</p>
       </div>
     );
