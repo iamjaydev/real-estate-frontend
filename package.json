@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "@vis.gl/react-google-maps": "^1.9.0",
+    "clsx": "^2.1.1",
     "lucide-react": "^1.31.0",
     "next": "16.3.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "tailwind-merge": "^3.7.0",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
