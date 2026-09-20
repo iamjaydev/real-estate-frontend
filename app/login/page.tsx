@@ -114,7 +114,7 @@ export default function LoginPage() {
       // Temporary until the backend provides the user's actual role.
       setAuth(response.access_token, "customer");
 
-      router.push("/customer");
+      router.push("/");
     } catch (error) {
       setAuthError(
         error instanceof Error

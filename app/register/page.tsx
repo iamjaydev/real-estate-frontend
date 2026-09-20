@@ -140,9 +140,9 @@ export default function RegisterPage() {
       setAuth(response.access_token, formData.role);
 
       if (formData.role === "broker") {
-        router.push("/broker");
+        router.push("/dashboard");
       } else {
-        router.push("/customer");
+        router.push("/");
       }
     } catch (error) {
       const message =
