@@ -8,6 +8,7 @@ import {
   Loader2,
 } from "lucide-react";
 
+import AuthGuard from "@/components/auth/AuthGuard";
 import { sendChatMessage } from "@/lib/api/chat";
 
 const SUGGESTIONS = [
@@ -56,6 +57,7 @@ export default function HomePage() {
   };
 
   return (
+    <AuthGuard allowedRole={["customer", "broker"]}>
     <section className="from-surface via-surface to-accent/5 relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-b px-4 py-12">
       <div className="bg-accent/15 absolute -top-40 left-1/2 -z-10 h-96 w-96 -translate-x-1/2 rounded-full blur-3xl" />
 
@@ -145,5 +147,6 @@ export default function HomePage() {
         </div>
       </div>
     </section>
+    </AuthGuard>
   );
 }

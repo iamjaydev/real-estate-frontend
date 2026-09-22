@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 
@@ -8,28 +8,46 @@ type UserRole = "customer" | "broker";
 
 interface AuthGuardProps {
   children: React.ReactNode;
-  allowedRole: UserRole;
+  allowedRole: UserRole | UserRole[];
 }
 
 export default function AuthGuard({ children, allowedRole }: AuthGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const [hasHydrated, setHasHydrated] = useState(false);
 
   const accessToken = useAuthStore((state) => state.accessToken);
   const userRole = useAuthStore((state) => state.userRole);
 
   useEffect(() => {
+    const unsubHydrate = useAuthStore.persist.onFinishHydration(() => {
+      setHasHydrated(true);
+    });
+
+    if (useAuthStore.persist.hasHydrated()) {
+      setHasHydrated(true);
+    }
+
+    return () => unsubHydrate();
+  }, []);
+
+  const roles = Array.isArray(allowedRole) ? allowedRole : [allowedRole];
+  const isAuthorized = userRole !== null && roles.includes(userRole);
+
+  useEffect(() => {
+    if (!hasHydrated) return;
+
     if (!accessToken) {
       router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
       return;
     }
 
-    if (userRole !== allowedRole) {
+    if (!isAuthorized) {
       router.replace(userRole === "broker" ? "/broker" : "/customer");
     }
-  }, [accessToken, userRole, allowedRole, pathname, router]);
+  }, [hasHydrated, accessToken, isAuthorized, userRole, pathname, router]);
 
-  if (!accessToken || userRole !== allowedRole) {
+  if (!hasHydrated || !accessToken || !isAuthorized) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <p className="text-sm text-zinc-500">Checking authentication...</p>
