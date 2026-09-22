@@ -1,12 +1,11 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   Sparkles,
-  MapPin,
-  Building,
-  ShieldCheck,
+  Loader2,
 } from "lucide-react";
 
 import { sendChatMessage } from "@/lib/api/chat";
@@ -19,17 +18,19 @@ const SUGGESTIONS = [
 ];
 
 export default function HomePage() {
+  const router = useRouter();
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const hasInput = input.trim().length > 0;
+  const hasInput = input.trim().length > 0 && !isLoading;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const query = input.trim();
-    if (!query) return;
+    if (!query || isLoading) return;
 
-    setInput("");
+    setIsLoading(true);
 
     try {
       const response = await sendChatMessage({
@@ -38,10 +39,15 @@ export default function HomePage() {
         polygon: null,
       });
 
-      console.log("AI response:", response.reply);
-      console.log("Listings:", response.listings);
+      if (response?.conversation_id) {
+        router.push(`/chat/${response.conversation_id}`);
+      } else {
+        console.error("No conversation_id received in response.");
+        setIsLoading(false);
+      }
     } catch (error) {
       console.error("Chat failed:", error);
+      setIsLoading(false);
     }
   }
 
@@ -91,10 +97,11 @@ export default function HomePage() {
             <input
               type="text"
               value={input}
+              disabled={isLoading}
               onChange={(e) => setInput(e.target.value)}
               placeholder="e.g. 3 BHK in Vesu, Surat under ₹80L with parking..."
               aria-label="Describe your ideal home"
-              className="text-text-primary placeholder:text-text-muted w-full border-none bg-transparent px-3 py-2 text-base outline-none"
+              className="text-text-primary placeholder:text-text-muted w-full border-none bg-transparent px-3 py-2 text-base outline-none disabled:opacity-50"
             />
 
             <button
@@ -107,8 +114,14 @@ export default function HomePage() {
                   : "bg-accent-disabled cursor-not-allowed opacity-60"
               }`}
             >
-              <span className="hidden text-sm sm:inline">Search</span>
-              <ArrowRight size={18} strokeWidth={2.5} />
+              {isLoading ? (
+                <Loader2 size={18} className="animate-spin" />
+              ) : (
+                <>
+                  <span className="hidden text-sm sm:inline">Search</span>
+                  <ArrowRight size={18} strokeWidth={2.5} />
+                </>
+              )}
             </button>
           </div>
         </form>
@@ -122,8 +135,9 @@ export default function HomePage() {
             <button
               key={index}
               type="button"
+              disabled={isLoading}
               onClick={() => handleSuggestionClick(suggestion)}
-              className="border-accent-border/50 bg-surface/50 text-text-secondary hover:border-accent/40 hover:bg-accent/5 hover:text-accent rounded-lg border px-3 py-1.5 text-xs transition-all"
+              className="border-accent-border/50 bg-surface/50 text-text-secondary hover:border-accent/40 hover:bg-accent/5 hover:text-accent rounded-lg border px-3 py-1.5 text-xs transition-all disabled:opacity-50"
             >
               {suggestion}
             </button>

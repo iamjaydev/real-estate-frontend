@@ -7,16 +7,20 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from "react";
-import { Send } from "lucide-react";
+import { Send, Loader2 } from "lucide-react";
 
 type ChatInputProps = {
   onSend: (text: string) => void;
+  disabled?: boolean;
 };
 
-export default function ChatInput({ onSend }: ChatInputProps) {
+export default function ChatInput({
+  onSend,
+  disabled = false,
+}: ChatInputProps) {
   const [text, setText] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const canSend = text.trim().length > 0;
+  const canSend = text.trim().length > 0 && !disabled;
 
   useEffect(() => {
     const el = textareaRef.current;
@@ -53,10 +57,11 @@ export default function ChatInput({ onSend }: ChatInputProps) {
           ref={textareaRef}
           rows={1}
           value={text}
+          disabled={disabled}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Message AI Assistant..."
-          className="max-h-28 min-h-6 flex-1 resize-none border-none bg-transparent py-1 text-sm text-slate-800 outline-none placeholder:text-slate-400 focus:ring-0"
+          className="max-h-28 min-h-6 flex-1 resize-none border-none bg-transparent py-1 text-sm text-slate-800 outline-none placeholder:text-slate-400 focus:ring-0 disabled:opacity-50"
         />
 
         <button
@@ -65,7 +70,11 @@ export default function ChatInput({ onSend }: ChatInputProps) {
           aria-label="Send message"
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-white shadow-sm transition-all duration-200 enabled:cursor-pointer enabled:hover:bg-slate-800 enabled:active:scale-95 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none"
         >
-          <Send className="h-4 w-4" />
+          {disabled ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Send className="h-4 w-4" />
+          )}
         </button>
       </form>
     </div>

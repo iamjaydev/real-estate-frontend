@@ -2,10 +2,10 @@
 
 import { useEffect, useRef } from "react";
 import ChatMessage from "./ChatMessage";
-import type { Message } from "./types";
+import { HistoricalMessage } from "@/lib/api/chat";
 
 type ChatMessagesProps = {
-  messages: Message[];
+  messages: HistoricalMessage[];
 };
 
 export default function ChatMessages({ messages }: ChatMessagesProps) {
@@ -16,11 +16,25 @@ export default function ChatMessages({ messages }: ChatMessagesProps) {
   }, [messages]);
 
   return (
-    <div className="fade-bottom h-full scrollbar-thin scrollbar-thumb-gray-200 overflow-y-auto px-5 py-6">
+    <div className="fade-bottom scrollbar-thin scrollbar-thumb-gray-200 h-full overflow-y-auto px-5 py-6">
       <div className="space-y-5">
-        {messages.map(({ id, role, content, time }) => (
-          <ChatMessage key={id} role={role} content={content} time={time} />
-        ))}
+        {messages.map((msg, index) => {
+          const formattedTime = msg.created_at
+            ? new Date(msg.created_at).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "";
+
+          return (
+            <ChatMessage
+              key={msg.id || `msg-${index}`}
+              role={msg.sender}
+              content={msg.message}
+              time={formattedTime}
+            />
+          );
+        })}
         <div ref={endRef} />
       </div>
     </div>

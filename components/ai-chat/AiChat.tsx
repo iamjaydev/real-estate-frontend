@@ -1,19 +1,28 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import ChatHeader from "./ChatHeader";
 import ChatInput from "./ChatInput";
 import ChatMessages from "./ChatArea";
-import { MOCK_MESSAGES } from "./mock-messages";
+import { HistoricalMessage } from "@/lib/api/chat";
 
 type AiChatProps = {
   isCollapsed: boolean;
   onToggle: () => void;
+  messages: HistoricalMessage[];
+  isLoading?: boolean;
+  isSending?: boolean;
+  onSendMessage: (text: string) => void;
 };
 
-export default function AiChat({ isCollapsed, onToggle }: AiChatProps) {
-  const handleSend = (text: string) => {
-    console.log(text);
-  };
-
+export default function AiChat({
+  isCollapsed,
+  onToggle,
+  messages,
+  isLoading = false,
+  isSending = false,
+  onSendMessage,
+}: AiChatProps) {
   return (
     <aside
       data-collapsed={isCollapsed}
@@ -45,14 +54,20 @@ export default function AiChat({ isCollapsed, onToggle }: AiChatProps) {
       <div
         className={cn(
           "flex flex-1 flex-col overflow-hidden transition-opacity duration-300",
-          isCollapsed ? "pointer-events-none opacity-0" : "opacity-100",
+          isCollapsed ? "pointer-events-none opacity-0" : "opacity-100"
         )}
       >
         <div className="min-h-0 flex-1 overflow-hidden">
-          <ChatMessages messages={MOCK_MESSAGES} />
+          {isLoading ? (
+            <div className="flex h-full items-center justify-center text-sm text-text-muted">
+              Loading chat history...
+            </div>
+          ) : (
+            <ChatMessages messages={messages} />
+          )}
         </div>
 
-        <ChatInput onSend={handleSend} />
+        <ChatInput onSend={onSendMessage} disabled={isSending} />
       </div>
     </aside>
   );
