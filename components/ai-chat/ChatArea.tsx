@@ -8,7 +8,7 @@ type ChatMessagesProps = {
   messages: HistoricalMessage[];
 };
 
-export default function ChatMessages({ messages }: ChatMessagesProps) {
+export default function ChatArea({ messages }: ChatMessagesProps) {
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -32,6 +32,7 @@ export default function ChatMessages({ messages }: ChatMessagesProps) {
               role={msg.sender}
               content={msg.message}
               time={formattedTime}
+              listings={msg.listings}
             />
           );
         })}

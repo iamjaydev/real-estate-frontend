@@ -1,17 +1,25 @@
 import { apiClient } from "./client";
 
-
 export interface Listing {
-  id: string;
+  id: number;
   title: string;
+  description: string;
   price: number;
-  bedrooms: number;
-  bathrooms: number;
-  area_sqft?: number;
-  address: string;
+  property_type: string;
+  carpet_area?: number | null;
+  built_up_area?: number | null;
+  plot_area?: number | null;
+  floor_number?: number | null;
+  rooms: {
+    bedrooms: number;
+    bathrooms: number;
+    balconies?: number;
+  };
   lat: number;
   lng: number;
-  image_urls?: string[];
+  broker_id: number;
+  amenities: Record<string, boolean>;
+  created_at: string;
 }
 
 export interface ChatMessageRequest {
