@@ -13,7 +13,7 @@ import Link from "next/link";
 export interface CreateListingFormData {
   title: string;
   description: string;
-  property_type: BackendPropertyType | "";
+  property_type: BackendPropertyType;
   price: string;
   bedrooms: string;
   bathrooms: string;
@@ -31,7 +31,7 @@ type FormTouched = Partial<Record<keyof CreateListingFormData, boolean>>;
 const INITIAL_FORM_DATA: CreateListingFormData = {
   title: "",
   description: "",
-  property_type: "",
+  property_type: "flat",
   price: "",
   bedrooms: "",
   bathrooms: "",
