@@ -20,6 +20,7 @@ export interface CreateListingFormData {
   floor_number: string;
   carpet_area: string;
   built_up_area: string;
+  plot_area: string;
   lat: string;
   lng: string;
 }
@@ -37,6 +38,7 @@ const INITIAL_FORM_DATA: CreateListingFormData = {
   floor_number: "",
   carpet_area: "",
   built_up_area: "",
+  plot_area: "",
   lat: "",
   lng: "",
 };
@@ -133,6 +135,16 @@ function validateField(
       return;
     }
 
+    case "plot_area": {
+      const n = Number(value);
+
+      if (!value || Number.isNaN(n) || n <= 0) {
+        return "Please enter a valid plot area";
+      }
+
+      return;
+    }
+
     case "lat": {
       const n = Number(value);
 
@@ -188,7 +200,7 @@ function toCreateListingRequest(
 
     built_up_area: Number(data.built_up_area),
 
-    plot_area: null,
+    plot_area: Number(data.plot_area),
 
     floor_number: Number(data.floor_number),
 
@@ -381,7 +393,6 @@ export default function BrokerCreateListingPage() {
       setCreatedListing(listing);
       setIsSuccess(true);
 
-      // Clear form after successful creation.
       setFormData(INITIAL_FORM_DATA);
       setErrors({});
       setTouched({});
@@ -636,6 +647,27 @@ export default function BrokerCreateListingPage() {
                 placeholder="e.g. 1420"
                 className={inputClass(
                   !!(touched.built_up_area && errors.built_up_area),
+                )}
+              />
+            </Field>
+
+            <Field
+              label="Plot Area (sq ft)"
+              name="plot_area"
+              error={touched.plot_area ? errors.plot_area : undefined}
+            >
+              <input
+                type="number"
+                id="plot_area"
+                name="plot_area"
+                min="0"
+                step="any"
+                value={formData.plot_area}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder="e.g. 1800"
+                className={inputClass(
+                  !!(touched.plot_area && errors.plot_area),
                 )}
               />
             </Field>
