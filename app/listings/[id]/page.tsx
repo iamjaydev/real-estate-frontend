@@ -11,6 +11,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { getListing, ListingResponse } from "@/lib/api/listings";
+import { useRouter } from "next/navigation";
 
 type ViewState = "loading" | "normal" | "error" | "not-found";
 
@@ -237,8 +238,8 @@ export default function PropertyDetailsPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const router = useRouter();
   const resolvedParams = use(params);
-
   const [property, setProperty] = useState<ListingResponse | null>(null);
 
   const [viewState, setViewState] = useState<ViewState>("loading");
@@ -330,13 +331,13 @@ export default function PropertyDetailsPage({
   return (
     <main className="bg-surface-soft min-h-screen pb-28 lg:pb-8">
       <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
-        <Link
-          href="/customer"
+        <button
+          type="button"
+          onClick={() => router.back()}
           className="text-text-secondary hover:text-text-primary group inline-flex items-center gap-2 text-sm font-medium transition-colors"
         >
           <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
-          Back to properties
-        </Link>
+        </button>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
