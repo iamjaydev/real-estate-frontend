@@ -3,6 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { AiChat } from "@/components/ai-chat";
 import GoogleMap from "@/components/map/GoogleMap";
+import UserMenu from "@/components/UserMenu";
 import {
   getConversationHistory,
   sendChatMessage,
@@ -34,7 +35,7 @@ export default function ChatPage({ params }: ChatPageProps) {
         setMessages(data.messages || []);
 
         const allListings = (data.messages || []).flatMap(
-          (msg) => msg.listings || []
+          (msg) => msg.listings || [],
         );
         console.log("Fetched listings from history:", allListings);
         setListings(allListings);
@@ -91,6 +92,10 @@ export default function ChatPage({ params }: ChatPageProps) {
 
   return (
     <main className="relative h-[100dvh] w-full overflow-hidden">
+      <div className="fixed top-4 right-4 z-50">
+        <UserMenu />
+      </div>
+
       <div
         className={`absolute inset-x-0 top-0 w-full transition-all duration-500 ease-in-out ${
           isCollapsed ? "h-full" : "h-1/2"

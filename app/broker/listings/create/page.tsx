@@ -2,6 +2,7 @@
 
 import { useState, FormEvent, ChangeEvent, FocusEvent, ReactNode } from "react";
 import { ExternalLink, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   createListing,
   ListingResponse,
@@ -9,6 +10,7 @@ import {
   BackendPropertyType,
 } from "@/lib/api/listings";
 import Link from "next/link";
+import AppHeader from "@/components/AppHeader";
 
 export interface CreateListingFormData {
   title: string;
@@ -275,6 +277,7 @@ function Field({ label, name, error, children, hint, className }: FieldProps) {
 }
 
 export default function BrokerCreateListingPage() {
+  const router = useRouter();
   const [formData, setFormData] =
     useState<CreateListingFormData>(INITIAL_FORM_DATA);
 
@@ -409,328 +412,320 @@ export default function BrokerCreateListingPage() {
     }
   };
 
-  const handleReset = () => {
-    if (isLoading) {
-      return;
-    }
-
-    setFormData(INITIAL_FORM_DATA);
-    setErrors({});
-    setTouched({});
-    setIsSuccess(false);
-    setSubmitError(null);
-    setCreatedListing(null);
-  };
-
   return (
-    <main className="min-h-screen bg-zinc-50 px-4 py-10 text-zinc-900 sm:px-6 dark:bg-zinc-950 dark:text-zinc-100">
-      <div className="mx-auto max-w-3xl">
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold">Create New Listing</h1>
+    <>
+      <AppHeader />
+      <main className="min-h-[calc(100vh-4rem)] bg-zinc-50 px-4 py-10 text-zinc-900 sm:px-6 dark:bg-zinc-950 dark:text-zinc-100">
+        <div className="mx-auto max-w-3xl">
+          <div className="mb-6">
+            <h1 className="text-2xl font-semibold">Create New Listing</h1>
 
-          <p className="mt-1 text-sm text-zinc-500">
-            Fill in the property details to publish a new listing.
-          </p>
-        </div>
-
-        {isSuccess && createdListing && (
-          <div className="mb-6 flex items-center justify-between rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 dark:border-green-900 dark:bg-green-950/40 dark:text-green-400">
-            <p>Listing created successfully.</p>
-
-            <Link
-              href={`/listings/${createdListing.id}`}
-              aria-label="View listing"
-              title="View listing"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-green-700 transition-colors hover:bg-green-100 dark:text-green-400 dark:hover:bg-green-900/50"
-            >
-              <ExternalLink className="h-4 w-4" />
-            </Link>
-          </div>
-        )}
-
-        {submitError && (
-          <div
-            role="alert"
-            className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-400"
-          >
-            {submitError}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} noValidate className="space-y-8">
-          <div className="space-y-4">
-            <Field
-              label="Property Title"
-              name="title"
-              error={touched.title ? errors.title : undefined}
-            >
-              <input
-                id="title"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="e.g. Elegant 3 BHK Apartment with Skyline View"
-                className={inputClass(!!(touched.title && errors.title))}
-              />
-            </Field>
-
-            <Field
-              label="Description"
-              name="description"
-              error={touched.description ? errors.description : undefined}
-            >
-              <textarea
-                id="description"
-                name="description"
-                rows={4}
-                value={formData.description}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="Describe key highlights, features, and neighborhood advantages..."
-                className={`${inputClass(
-                  !!(touched.description && errors.description),
-                )} resize-y`}
-              />
-            </Field>
+            <p className="mt-1 text-sm text-zinc-500">
+              Fill in the property details to publish a new listing.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field
-              label="Property Type"
-              name="property_type"
-              error={touched.property_type ? errors.property_type : undefined}
-            >
-              <select
-                id="property_type"
-                name="property_type"
-                value={formData.property_type}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                className={inputClass(
-                  !!(touched.property_type && errors.property_type),
-                )}
+          {isSuccess && createdListing && (
+            <div className="mb-6 flex items-center justify-between rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 dark:border-green-900 dark:bg-green-950/40 dark:text-green-400">
+              <p>Listing created successfully.</p>
+
+              <Link
+                href={`/listings/${createdListing.id}`}
+                aria-label="View listing"
+                title="View listing"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-green-700 transition-colors hover:bg-green-100 dark:text-green-400 dark:hover:bg-green-900/50"
               >
-                <option value="" disabled>
-                  Select property type
-                </option>
+                <ExternalLink className="h-4 w-4" />
+              </Link>
+            </div>
+          )}
 
-                <option value="flat">Flat</option>
-
-                <option value="house_land">House / Land</option>
-              </select>
-            </Field>
-
-            <Field
-              label="Price (INR)"
-              name="price"
-              error={touched.price ? errors.price : undefined}
-              hint={
-                formData.price && !errors.price
-                  ? formatPrice(formData.price)
-                  : undefined
-              }
+          {submitError && (
+            <div
+              role="alert"
+              className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-400"
             >
-              <input
-                type="number"
-                id="price"
+              {submitError}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} noValidate className="space-y-8">
+            <div className="space-y-4">
+              <Field
+                label="Property Title"
+                name="title"
+                error={touched.title ? errors.title : undefined}
+              >
+                <input
+                  id="title"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="e.g. Elegant 3 BHK Apartment with Skyline View"
+                  className={inputClass(!!(touched.title && errors.title))}
+                />
+              </Field>
+
+              <Field
+                label="Description"
+                name="description"
+                error={touched.description ? errors.description : undefined}
+              >
+                <textarea
+                  id="description"
+                  name="description"
+                  rows={4}
+                  value={formData.description}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="Describe key highlights, features, and neighborhood advantages..."
+                  className={`${inputClass(
+                    !!(touched.description && errors.description),
+                  )} resize-y`}
+                />
+              </Field>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Field
+                label="Property Type"
+                name="property_type"
+                error={touched.property_type ? errors.property_type : undefined}
+              >
+                <select
+                  id="property_type"
+                  name="property_type"
+                  value={formData.property_type}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  className={inputClass(
+                    !!(touched.property_type && errors.property_type),
+                  )}
+                >
+                  <option value="" disabled>
+                    Select property type
+                  </option>
+
+                  <option value="flat">Flat</option>
+
+                  <option value="house_land">House / Land</option>
+                </select>
+              </Field>
+
+              <Field
+                label="Price (INR)"
                 name="price"
-                min="0"
-                step="1000"
-                value={formData.price}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="e.g. 8500000"
-                className={inputClass(!!(touched.price && errors.price))}
-              />
-            </Field>
+                error={touched.price ? errors.price : undefined}
+                hint={
+                  formData.price && !errors.price
+                    ? formatPrice(formData.price)
+                    : undefined
+                }
+              >
+                <input
+                  type="number"
+                  id="price"
+                  name="price"
+                  min="0"
+                  step="1000"
+                  value={formData.price}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="e.g. 8500000"
+                  className={inputClass(!!(touched.price && errors.price))}
+                />
+              </Field>
 
-            <Field
-              label="Bedrooms"
-              name="bedrooms"
-              error={touched.bedrooms ? errors.bedrooms : undefined}
-            >
-              <input
-                type="number"
-                id="bedrooms"
+              <Field
+                label="Bedrooms"
                 name="bedrooms"
-                min="0"
-                max="50"
-                step="1"
-                value={formData.bedrooms}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="e.g. 3"
-                className={inputClass(!!(touched.bedrooms && errors.bedrooms))}
-              />
-            </Field>
+                error={touched.bedrooms ? errors.bedrooms : undefined}
+              >
+                <input
+                  type="number"
+                  id="bedrooms"
+                  name="bedrooms"
+                  min="0"
+                  max="50"
+                  step="1"
+                  value={formData.bedrooms}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="e.g. 3"
+                  className={inputClass(
+                    !!(touched.bedrooms && errors.bedrooms),
+                  )}
+                />
+              </Field>
 
-            <Field
-              label="Bathrooms"
-              name="bathrooms"
-              error={touched.bathrooms ? errors.bathrooms : undefined}
-            >
-              <input
-                type="number"
-                id="bathrooms"
+              <Field
+                label="Bathrooms"
                 name="bathrooms"
-                min="0"
-                max="50"
-                step="1"
-                value={formData.bathrooms}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="e.g. 2"
-                className={inputClass(
-                  !!(touched.bathrooms && errors.bathrooms),
-                )}
-              />
-            </Field>
+                error={touched.bathrooms ? errors.bathrooms : undefined}
+              >
+                <input
+                  type="number"
+                  id="bathrooms"
+                  name="bathrooms"
+                  min="0"
+                  max="50"
+                  step="1"
+                  value={formData.bathrooms}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="e.g. 2"
+                  className={inputClass(
+                    !!(touched.bathrooms && errors.bathrooms),
+                  )}
+                />
+              </Field>
 
-            <Field
-              label="Floor Number"
-              name="floor_number"
-              error={touched.floor_number ? errors.floor_number : undefined}
-            >
-              <input
-                type="number"
-                id="floor_number"
+              <Field
+                label="Floor Number"
                 name="floor_number"
-                min="-5"
-                max="200"
-                step="1"
-                value={formData.floor_number}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="e.g. 5 (0 for Ground)"
-                className={inputClass(
-                  !!(touched.floor_number && errors.floor_number),
-                )}
-              />
-            </Field>
+                error={touched.floor_number ? errors.floor_number : undefined}
+              >
+                <input
+                  type="number"
+                  id="floor_number"
+                  name="floor_number"
+                  min="-5"
+                  max="200"
+                  step="1"
+                  value={formData.floor_number}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="e.g. 5 (0 for Ground)"
+                  className={inputClass(
+                    !!(touched.floor_number && errors.floor_number),
+                  )}
+                />
+              </Field>
 
-            <Field
-              label="Carpet Area (sq ft)"
-              name="carpet_area"
-              error={touched.carpet_area ? errors.carpet_area : undefined}
-            >
-              <input
-                type="number"
-                id="carpet_area"
+              <Field
+                label="Carpet Area (sq ft)"
                 name="carpet_area"
-                min="0"
-                step="any"
-                value={formData.carpet_area}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="e.g. 1150"
-                className={inputClass(
-                  !!(touched.carpet_area && errors.carpet_area),
-                )}
-              />
-            </Field>
+                error={touched.carpet_area ? errors.carpet_area : undefined}
+              >
+                <input
+                  type="number"
+                  id="carpet_area"
+                  name="carpet_area"
+                  min="0"
+                  step="any"
+                  value={formData.carpet_area}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="e.g. 1150"
+                  className={inputClass(
+                    !!(touched.carpet_area && errors.carpet_area),
+                  )}
+                />
+              </Field>
 
-            <Field
-              label="Built-up Area (sq ft)"
-              name="built_up_area"
-              error={touched.built_up_area ? errors.built_up_area : undefined}
-            >
-              <input
-                type="number"
-                id="built_up_area"
+              <Field
+                label="Built-up Area (sq ft)"
                 name="built_up_area"
-                min="0"
-                step="any"
-                value={formData.built_up_area}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="e.g. 1420"
-                className={inputClass(
-                  !!(touched.built_up_area && errors.built_up_area),
-                )}
-              />
-            </Field>
+                error={touched.built_up_area ? errors.built_up_area : undefined}
+              >
+                <input
+                  type="number"
+                  id="built_up_area"
+                  name="built_up_area"
+                  min="0"
+                  step="any"
+                  value={formData.built_up_area}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="e.g. 1420"
+                  className={inputClass(
+                    !!(touched.built_up_area && errors.built_up_area),
+                  )}
+                />
+              </Field>
 
-            <Field
-              label="Plot Area (sq ft)"
-              name="plot_area"
-              error={touched.plot_area ? errors.plot_area : undefined}
-            >
-              <input
-                type="number"
-                id="plot_area"
+              <Field
+                label="Plot Area (sq ft)"
                 name="plot_area"
-                min="0"
-                step="any"
-                value={formData.plot_area}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="e.g. 1800"
-                className={inputClass(
-                  !!(touched.plot_area && errors.plot_area),
-                )}
-              />
-            </Field>
+                error={touched.plot_area ? errors.plot_area : undefined}
+              >
+                <input
+                  type="number"
+                  id="plot_area"
+                  name="plot_area"
+                  min="0"
+                  step="any"
+                  value={formData.plot_area}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="e.g. 1800"
+                  className={inputClass(
+                    !!(touched.plot_area && errors.plot_area),
+                  )}
+                />
+              </Field>
 
-            <Field
-              label="Latitude"
-              name="lat"
-              error={touched.lat ? errors.lat : undefined}
-            >
-              <input
-                type="number"
-                step="any"
-                id="lat"
+              <Field
+                label="Latitude"
                 name="lat"
-                value={formData.lat}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="e.g. 19.0760"
-                className={inputClass(!!(touched.lat && errors.lat))}
-              />
-            </Field>
+                error={touched.lat ? errors.lat : undefined}
+              >
+                <input
+                  type="number"
+                  step="any"
+                  id="lat"
+                  name="lat"
+                  value={formData.lat}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="e.g. 19.0760"
+                  className={inputClass(!!(touched.lat && errors.lat))}
+                />
+              </Field>
 
-            <Field
-              label="Longitude"
-              name="lng"
-              error={touched.lng ? errors.lng : undefined}
-            >
-              <input
-                type="number"
-                step="any"
-                id="lng"
+              <Field
+                label="Longitude"
                 name="lng"
-                value={formData.lng}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="e.g. 72.8777"
-                className={inputClass(!!(touched.lng && errors.lng))}
-              />
-            </Field>
-          </div>
+                error={touched.lng ? errors.lng : undefined}
+              >
+                <input
+                  type="number"
+                  step="any"
+                  id="lng"
+                  name="lng"
+                  value={formData.lng}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="e.g. 72.8777"
+                  className={inputClass(!!(touched.lng && errors.lng))}
+                />
+              </Field>
+            </div>
 
-          <div className="flex justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={handleReset}
-              disabled={isLoading}
-              className="rounded-lg border border-zinc-300 px-5 py-2.5 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
-            >
-              Cancel
-            </button>
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => router.back()}
+                disabled={isLoading}
+                className="rounded-lg border border-zinc-300 px-5 py-2.5 text-sm font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
+              >
+                Cancel
+              </button>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
-            >
-              {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+              >
+                {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
 
-              {isLoading ? "Creating..." : "Create Listing"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </main>
+                {isLoading ? "Creating..." : "Create Listing"}
+              </button>
+            </div>
+          </form>
+        </div>
+      </main>
+    </>
   );
 }
