@@ -137,10 +137,10 @@ export default function RegisterPage() {
     try {
       const response = await registerUser(formData);
 
-      setAuth(response.access_token, formData.role);
+      setAuth(response.access_token, response.user);
 
-      if (formData.role === "broker") {
-        router.push("/dashboard");
+      if (response.user.role === "broker") {
+        router.push("/broker/dashboard");
       } else {
         router.push("/");
       }

@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import type { UserRole } from "@/lib/api/auth";
 import { useAuthStore } from "@/stores/authStore";
-
-type UserRole = "customer" | "broker";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -17,7 +16,7 @@ export default function AuthGuard({ children, allowedRole }: AuthGuardProps) {
   const [hasHydrated, setHasHydrated] = useState(false);
 
   const accessToken = useAuthStore((state) => state.accessToken);
-  const userRole = useAuthStore((state) => state.userRole);
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     const unsubHydrate = useAuthStore.persist.onFinishHydration(() => {
@@ -25,14 +24,14 @@ export default function AuthGuard({ children, allowedRole }: AuthGuardProps) {
     });
 
     if (useAuthStore.persist.hasHydrated()) {
-      setHasHydrated(true);
+      queueMicrotask(() => setHasHydrated(true));
     }
 
     return () => unsubHydrate();
   }, []);
 
   const roles = Array.isArray(allowedRole) ? allowedRole : [allowedRole];
-  const isAuthorized = userRole !== null && roles.includes(userRole);
+  const isAuthorized = user !== null && roles.includes(user.role);
 
   useEffect(() => {
     if (!hasHydrated) return;
@@ -43,9 +42,9 @@ export default function AuthGuard({ children, allowedRole }: AuthGuardProps) {
     }
 
     if (!isAuthorized) {
-      router.replace(userRole === "broker" ? "/broker" : "/customer");
+      router.replace(user?.role === "broker" ? "/broker" : "/");
     }
-  }, [hasHydrated, accessToken, isAuthorized, userRole, pathname, router]);
+  }, [hasHydrated, accessToken, isAuthorized, user, pathname, router]);
 
   if (!hasHydrated || !accessToken || !isAuthorized) {
     return (

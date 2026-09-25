@@ -1,13 +1,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
-export type UserRole = "customer" | "broker";
+import type { User } from "@/lib/api/auth";
 
 type AuthState = {
   accessToken: string | null;
-  userRole: UserRole | null;
+  user: User | null;
 
-  setAuth: (accessToken: string, userRole: UserRole) => void;
+  setAuth: (accessToken: string, user: User) => void;
   logout: () => void;
 };
 
@@ -15,19 +14,19 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       accessToken: null,
-      userRole: null,
+      user: null,
 
-      setAuth: (accessToken, userRole) => {
+      setAuth: (accessToken, user) => {
         set({
           accessToken,
-          userRole,
+          user,
         });
       },
 
       logout: () => {
         set({
           accessToken: null,
-          userRole: null,
+          user: null,
         });
       },
     }),

@@ -6,10 +6,10 @@ import {
   getBrokerAnalytics,
   type BrokerAnalyticsResponse,
 } from "@/lib/api/broker";
-
-const BROKER_ID = 1;
+import { useAuthStore } from "@/stores/authStore";
 
 export default function BrokerDashboardPage() {
+  const user = useAuthStore((state) => state.user);
   const [analytics, setAnalytics] = useState<BrokerAnalyticsResponse | null>(
     null,
   );
@@ -25,7 +25,9 @@ export default function BrokerDashboardPage() {
         setLoading(true);
         setError(null);
 
-        const data = await getBrokerAnalytics(BROKER_ID);
+        if (!user) return;
+
+        const data = await getBrokerAnalytics(user.id);
 
         if (!cancelled) {
           setAnalytics(data);
@@ -50,7 +52,7 @@ export default function BrokerDashboardPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [user]);
 
   const totalListings = analytics?.total_listings ?? 0;
   const totalLeads = analytics?.total_leads ?? 0;
@@ -79,7 +81,7 @@ export default function BrokerDashboardPage() {
             </p>
 
             <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-              Welcome back, John
+              Welcome back, {user?.name}
             </h1>
 
             <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600 sm:text-base">

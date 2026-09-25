@@ -5,5 +5,5 @@ export default function BrokerLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <AuthGuard allowedRole={["customer", "broker"]}>{children}</AuthGuard>;
+  return <AuthGuard allowedRole="broker">{children}</AuthGuard>;
 }

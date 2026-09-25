@@ -111,10 +111,9 @@ export default function LoginPage() {
         password: formData.password,
       });
 
-      // Temporary until the backend provides the user's actual role.
-      setAuth(response.access_token, "customer");
+      setAuth(response.access_token, response.user);
 
-      router.push("/");
+      router.push(response.user.role === "broker" ? "/broker/dashboard" : "/");
     } catch (error) {
       setAuthError(
         error instanceof Error

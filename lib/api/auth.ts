@@ -1,5 +1,12 @@
 export type UserRole = "customer" | "broker";
 
+export type User = {
+  id: number;
+  email: string;
+  name: string;
+  role: UserRole;
+};
+
 export type RegisterRequest = {
   name: string;
   email: string;
@@ -10,6 +17,7 @@ export type RegisterRequest = {
 export type RegisterResponse = {
   access_token: string;
   token_type: string;
+  user: User;
 };
 
 export type LoginRequest = {
@@ -20,6 +28,7 @@ export type LoginRequest = {
 export type LoginResponse = {
   access_token: string;
   token_type: string;
+  user: User;
 };
 
 export async function registerUser(
