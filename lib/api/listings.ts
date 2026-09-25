@@ -42,3 +42,9 @@ export function createListing(
     body: JSON.stringify(data),
   });
 }
+
+export function getListing(listingId: number): Promise<ListingResponse> {
+  return apiClient(`/listings/${listingId}`, {
+    method: "GET",
+  });
+}
