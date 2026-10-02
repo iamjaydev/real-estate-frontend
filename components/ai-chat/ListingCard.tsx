@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Listing } from "@/lib/api/chat";
 import { Bed, Bath, Maximize2, MapPin } from "lucide-react";
 
@@ -16,30 +17,32 @@ export default function ListingCard({ listing, onSelect }: ListingCardProps) {
   }).format(listing.price);
 
   return (
-    <div
+    <Link
+      href={`/listings/${listing.id}`}
       onClick={() => onSelect?.(listing)}
-      className="group flex flex-col gap-2 rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-xs transition-all hover:border-slate-300 hover:shadow-md cursor-pointer"
+      className="group block flex cursor-pointer flex-col gap-2 rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-xs transition-all hover:border-slate-300 hover:shadow-md"
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h4 className="font-semibold text-slate-800 text-sm leading-snug line-clamp-1 group-hover:text-blue-600 transition-colors">
+          <h4 className="line-clamp-1 text-sm leading-snug font-semibold text-slate-800 transition-colors group-hover:text-blue-600">
             {listing.title}
           </h4>
-          <p className="text-xs text-slate-500 line-clamp-1 flex items-center gap-1 mt-0.5">
+          <p className="mt-0.5 line-clamp-1 flex items-center gap-1 text-xs text-slate-500">
             <MapPin className="h-3 w-3 shrink-0 text-slate-400" />
-            {listing.property_type.toUpperCase()} • Floor {listing.floor_number ?? "N/A"}
+            {listing.property_type.toUpperCase()} • Floor{" "}
+            {listing.floor_number ?? "N/A"}
           </p>
         </div>
-        <span className="shrink-0 font-bold text-slate-900 text-sm bg-slate-100 px-2.5 py-1 rounded-lg">
+        <span className="shrink-0 rounded-lg bg-slate-100 px-2.5 py-1 text-sm font-bold text-slate-900">
           {formattedPrice}
         </span>
       </div>
 
-      <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+      <p className="line-clamp-2 text-xs leading-relaxed text-slate-600">
         {listing.description}
       </p>
 
-      <div className="flex items-center gap-3 pt-1 text-xs text-slate-500 border-t border-slate-100">
+      <div className="flex items-center gap-3 border-t border-slate-100 pt-1 text-xs text-slate-500">
         {listing.rooms?.bedrooms && (
           <div className="flex items-center gap-1">
             <Bed className="h-3.5 w-3.5 text-slate-400" />
@@ -59,6 +62,6 @@ export default function ListingCard({ listing, onSelect }: ListingCardProps) {
           </div>
         )}
       </div>
-    </div>
+    </Link>
   );
 }
