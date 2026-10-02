@@ -8,6 +8,7 @@ import { Bed, Bath, Maximize2, MapPin } from "lucide-react";
 interface ListingCardProps {
   listing: Listing;
   onSelect?: (listing: Listing) => void;
+  cardKey?: string;
   isHovered?: boolean;
   onHoverChange?: (isHovered: boolean) => void;
 }
@@ -15,6 +16,7 @@ interface ListingCardProps {
 export default function ListingCard({
   listing,
   onSelect,
+  cardKey,
   isHovered = false,
   onHoverChange,
 }: ListingCardProps) {
@@ -27,9 +29,13 @@ export default function ListingCard({
   return (
     <Link
       href={`/listings/${listing.id}`}
+      data-listing-id={listing.id}
+      data-listing-key={cardKey ?? listing.id}
       onClick={() => onSelect?.(listing)}
       onMouseEnter={() => onHoverChange?.(true)}
       onMouseLeave={() => onHoverChange?.(false)}
+      onFocus={() => onHoverChange?.(true)}
+      onBlur={() => onHoverChange?.(false)}
       className={cn(
         "group block flex cursor-pointer flex-col gap-2 rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-xs transition-all duration-200 hover:border-slate-300 hover:shadow-md",
         isHovered &&

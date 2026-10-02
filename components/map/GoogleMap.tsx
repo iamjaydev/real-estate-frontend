@@ -109,14 +109,16 @@ export default function GoogleMap({
               key={`${property.id}-${index}`}
               position={coords}
               title={property.title}
+              className="pointer-events-auto"
+              onMouseEnter={() => onHoverListing?.(property.id)}
+              onMouseLeave={() => onHoverListing?.(null)}
+              style={{ pointerEvents: "auto", cursor: "pointer" }}
             >
               <div
                 className={cn(
                   "relative flex size-11 items-center justify-center transition-all duration-200",
                   isHovered && "scale-110",
                 )}
-                onMouseEnter={() => onHoverListing?.(property.id)}
-                onMouseLeave={() => onHoverListing?.(null)}
               >
                 <div
                   className={cn(

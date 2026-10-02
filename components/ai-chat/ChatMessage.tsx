@@ -13,8 +13,11 @@ interface ChatMessageProps {
   content: string;
   time?: string;
   listings?: HistoricalMessage["listings"];
+  messageKey?: string;
   hoveredListingId?: number | null;
+  hoveredCardKey?: string | null;
   onHoverListing?: (listingId: number | null) => void;
+  onHoverCard?: (cardKey: string | null) => void;
 }
 
 export default function ChatMessage({
@@ -22,8 +25,11 @@ export default function ChatMessage({
   content,
   time,
   listings,
+  messageKey,
   hoveredListingId = null,
+  hoveredCardKey = null,
   onHoverListing,
+  onHoverCard,
 }: ChatMessageProps) {
   const isAssistant = role === "assistant";
   const hasListings = isAssistant && listings && listings.length > 0;
@@ -44,16 +50,28 @@ export default function ChatMessage({
 
         {hasListings && (
           <div className="mt-2.5 space-y-2">
-            {listings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                listing={listing}
-                isHovered={hoveredListingId === listing.id}
-                onHoverChange={(isHovered) =>
-                  onHoverListing?.(isHovered ? listing.id : null)
-                }
-              />
-            ))}
+            {listings.map((listing, listingIndex) => {
+              const cardKey = `${messageKey ?? "msg"}-${listing.id}-${listingIndex}`;
+
+              return (
+                <ListingCard
+                  key={cardKey}
+                  listing={listing}
+                  cardKey={cardKey}
+                  isHovered={hoveredCardKey === cardKey}
+                  onHoverChange={(isHovered) => {
+                    if (isHovered) {
+                      onHoverCard?.(cardKey);
+                      onHoverListing?.(listing.id);
+                      return;
+                    }
+
+                    onHoverCard?.(null);
+                    onHoverListing?.(null);
+                  }}
+                />
+              );
+            })}
           </div>
         )}
 

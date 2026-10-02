@@ -15,6 +15,16 @@ interface ChatPageProps {
   params: Promise<{ id: string }>;
 }
 
+function getLatestUniqueListings<T extends { id: number }>(items: T[]): T[] {
+  const latestById = new Map<number, T>();
+
+  for (const item of items) {
+    latestById.set(item.id, item);
+  }
+
+  return [...latestById.values()];
+}
+
 export default function ChatPage({ params }: ChatPageProps) {
   const { id: conversationId } = use(params);
 
@@ -22,6 +32,7 @@ export default function ChatPage({ params }: ChatPageProps) {
   const [messages, setMessages] = useState<HistoricalMessage[]>([]);
   const [listings, setListings] = useState<Listing[]>([]);
   const [hoveredListingId, setHoveredListingId] = useState<number | null>(null);
+  const [hoveredCardKey, setHoveredCardKey] = useState<string | null>(null);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
 
@@ -38,8 +49,9 @@ export default function ChatPage({ params }: ChatPageProps) {
         const allListings = (data.messages || []).flatMap(
           (msg) => msg.listings || [],
         );
-        console.log("Fetched listings from history:", allListings);
-        setListings(allListings);
+        const latestListings = getLatestUniqueListings(allListings);
+        console.log("Fetched listings from history:", latestListings);
+        setListings(latestListings);
       } catch (error) {
         console.error("Failed to load conversation history:", error);
       } finally {
@@ -82,7 +94,9 @@ export default function ChatPage({ params }: ChatPageProps) {
       setMessages((prev) => [...prev, assistantMsg]);
 
       if (response.listings?.length) {
-        setListings((prev) => [...prev, ...response.listings]);
+        setListings((prev) =>
+          getLatestUniqueListings([...prev, ...response.listings]),
+        );
       }
     } catch (error) {
       console.error("Failed to send message:", error);
@@ -112,7 +126,9 @@ export default function ChatPage({ params }: ChatPageProps) {
       <AiChat
         messages={messages}
         hoveredListingId={hoveredListingId}
+        hoveredCardKey={hoveredCardKey}
         onHoverListing={setHoveredListingId}
+        onHoverCard={setHoveredCardKey}
         isLoading={isLoadingHistory}
         isSending={isSendingMessage}
         onSendMessage={handleSendMessage}

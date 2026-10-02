@@ -11,7 +11,9 @@ type AiChatProps = {
   onToggle: () => void;
   messages: HistoricalMessage[];
   hoveredListingId?: number | null;
+  hoveredCardKey?: string | null;
   onHoverListing?: (listingId: number | null) => void;
+  onHoverCard?: (cardKey: string | null) => void;
   isLoading?: boolean;
   isSending?: boolean;
   onSendMessage: (text: string) => void;
@@ -22,7 +24,9 @@ export default function AiChat({
   onToggle,
   messages,
   hoveredListingId = null,
+  hoveredCardKey = null,
   onHoverListing,
+  onHoverCard,
   isLoading = false,
   isSending = false,
   onSendMessage,
@@ -70,7 +74,9 @@ export default function AiChat({
             <ChatMessages
               messages={messages}
               hoveredListingId={hoveredListingId}
+              hoveredCardKey={hoveredCardKey}
               onHoverListing={onHoverListing}
+              onHoverCard={onHoverCard}
             />
           )}
         </div>
