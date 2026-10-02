@@ -2,6 +2,7 @@
 
 import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowLeft,
   RefreshCw,
@@ -9,12 +10,43 @@ import {
   SearchX,
   Phone,
   MessageCircle,
+  Star,
+  ChevronRight,
+  Train,
+  Plane,
+  ShoppingBag,
+  GraduationCap,
+  Hospital,
 } from "lucide-react";
 import { getListing, ListingResponse } from "@/lib/api/listings";
 import { useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 
 type ViewState = "loading" | "normal" | "error" | "not-found";
+
+// Single Dummy Property Image URL
+const DUMMY_PROPERTY_IMAGE =
+  "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80";
+
+// Mock Fallback Data
+const MOCK_AMENITIES = [
+  "Swimming Pool",
+  "Indoor Games",
+  "Fully Equipped Gym",
+  "24/7 Security",
+  "Power Backup",
+  "Clubhouse",
+  "Children's Play Area",
+  "Landscaped Gardens",
+];
+
+const MOCK_ACCESSIBILITY = [
+  { name: "Grocery Store", distance: "0.5 km", icon: ShoppingBag },
+  { name: "Railway Station", distance: "3.2 km", icon: Train },
+  { name: "Airport", distance: "12.5 km", icon: Plane },
+  { name: "International School", distance: "1.2 km", icon: GraduationCap },
+  { name: "Multi-Specialty Hospital", distance: "2.0 km", icon: Hospital },
+];
 
 function formatINR(amount: number): string {
   return new Intl.NumberFormat("en-IN", {
@@ -80,13 +112,15 @@ function getAmenities(amenities: Record<string, unknown> | null): string[] {
   const items = amenities.items;
 
   if (Array.isArray(items)) {
-    return items
+    const parsed = items
       .filter((item): item is string => typeof item === "string")
       .map((item) => item.trim())
       .filter(Boolean);
+
+    if (parsed.length > 0) return parsed;
   }
 
-  return Object.entries(amenities)
+  const parsedObject = Object.entries(amenities)
     .filter(([, value]) => {
       return value === true || typeof value === "string";
     })
@@ -99,6 +133,8 @@ function getAmenities(amenities: Record<string, unknown> | null): string[] {
         .replace(/_/g, " ")
         .replace(/\b\w/g, (char) => char.toUpperCase());
     });
+
+  return parsedObject;
 }
 
 function getApiStatus(error: unknown): number | null {
@@ -137,6 +173,7 @@ function LoadingState() {
       <main className="bg-surface-soft min-h-[calc(100vh-4rem)] px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl space-y-6">
           <div className="h-6 w-44 animate-pulse rounded-lg bg-zinc-200" />
+          <div className="h-72 w-full animate-pulse rounded-2xl bg-zinc-200 sm:h-96" />
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <div className="space-y-6 lg:col-span-2">
@@ -152,7 +189,6 @@ function LoadingState() {
               </div>
 
               <div className="border-border h-32 animate-pulse rounded-xl border bg-zinc-100" />
-
               <div className="border-border h-40 animate-pulse rounded-xl border bg-zinc-100" />
             </div>
 
@@ -336,7 +372,19 @@ export default function PropertyDetailsPage({
       ? Math.round(property.price / property.carpet_area)
       : null;
 
-  const amenities = getAmenities(property.amenities);
+  const fetchedAmenities = getAmenities(property.amenities);
+  const amenitiesList =
+    fetchedAmenities.length > 0 ? fetchedAmenities : MOCK_AMENITIES;
+
+  const broker = (property as Record<string, any>).broker || {
+    id: 1,
+    name: "Rajesh Sharma",
+    years_experience: 8,
+    active_listings: 14,
+    properties_sold: 42,
+    rating: 4.8,
+    review_count: 29,
+  };
 
   return (
     <>
@@ -350,6 +398,18 @@ export default function PropertyDetailsPage({
           >
             <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
           </button>
+
+          {/* 6. Single Dummy Image Banner */}
+          <div className="bg-surface border-border relative h-64 w-full overflow-hidden rounded-2xl border shadow-xs sm:h-96">
+            <Image
+              src={DUMMY_PROPERTY_IMAGE}
+              alt={property.title || "Property Cover Photo"}
+              fill
+              unoptimized
+              className="object-cover"
+              priority
+            />
+          </div>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <div className="space-y-6 lg:col-span-2">
@@ -402,6 +462,7 @@ export default function PropertyDetailsPage({
                 ))}
               </div>
 
+              {/* Description */}
               <section>
                 <h2 className="text-text-primary mb-2 text-lg font-bold tracking-tight">
                   Description
@@ -412,6 +473,77 @@ export default function PropertyDetailsPage({
                 </p>
               </section>
 
+              {/* Broker Card */}
+              <section>
+                <h2 className="text-text-primary mb-3 text-lg font-bold tracking-tight">
+                  Listed By
+                </h2>
+
+                <Link
+                  href={`/brokers/${broker.id}`}
+                  className="bg-surface border-border hover:border-accent/40 group block rounded-2xl border p-5 shadow-sm transition-all hover:shadow-md"
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <div className="bg-accent/10 text-accent flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full font-bold">
+                        {broker.name.charAt(0)}
+                      </div>
+
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <h3 className="text-text-primary group-hover:text-accent text-base font-bold transition-colors">
+                            {broker.name}
+                          </h3>
+                        </div>
+
+                        <div className="text-text-secondary mt-0.5 flex items-center gap-1 text-xs font-medium">
+                          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                          <span className="text-text-primary font-semibold">
+                            {broker.rating ?? 4.8}
+                          </span>
+                          <span>({broker.review_count ?? 0} reviews)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-text-secondary group-hover:text-accent flex items-center gap-1 text-sm font-medium transition-colors">
+                      <span className="hidden sm:inline">View Profile</span>
+                      <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
+                    </div>
+                  </div>
+
+                  <div className="border-border mt-4 grid grid-cols-3 gap-2 border-t pt-4 text-center">
+                    <div>
+                      <div className="text-text-primary text-sm font-bold sm:text-base">
+                        {broker.years_experience ?? 0} yrs
+                      </div>
+                      <div className="text-text-secondary text-xs">
+                        Experience
+                      </div>
+                    </div>
+
+                    <div className="border-border border-x">
+                      <div className="text-text-primary text-sm font-bold sm:text-base">
+                        {broker.active_listings ?? 0}
+                      </div>
+                      <div className="text-text-secondary text-xs">
+                        Listings
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="text-text-primary text-sm font-bold sm:text-base">
+                        {broker.properties_sold ?? 0}
+                      </div>
+                      <div className="text-text-secondary text-xs">
+                        Properties Sold
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              </section>
+
+              {/* Property Details */}
               <section>
                 <h2 className="text-text-primary mb-3 text-lg font-bold tracking-tight">
                   Details
@@ -461,27 +593,55 @@ export default function PropertyDetailsPage({
                 </div>
               </section>
 
+              {/* Amenities Chips */}
               <section>
                 <h2 className="text-text-primary mb-3 text-lg font-bold tracking-tight">
                   Amenities
                 </h2>
 
-                {amenities.length > 0 ? (
-                  <div className="flex flex-wrap gap-2.5">
-                    {amenities.map((amenity) => (
-                      <span
-                        key={amenity}
-                        className="bg-surface border-border text-text-primary inline-flex items-center rounded-xl border px-4 py-2 text-sm font-medium"
+                <div className="flex flex-wrap gap-2">
+                  {amenitiesList.map((amenity) => (
+                    <span
+                      key={amenity}
+                      className="bg-surface border-border text-text-primary inline-flex items-center rounded-xl border px-3.5 py-2 text-xs font-semibold shadow-2xs sm:text-sm"
+                    >
+                      {amenity}
+                    </span>
+                  ))}
+                </div>
+              </section>
+
+              {/* Accessibility / Nearby Places */}
+              <section>
+                <h2 className="text-text-primary mb-3 text-lg font-bold tracking-tight">
+                  Accessibility & Nearby Places
+                </h2>
+
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {MOCK_ACCESSIBILITY.map((item) => {
+                    const IconComponent = item.icon;
+                    return (
+                      <div
+                        key={item.name}
+                        className="bg-surface border-border flex items-center justify-between rounded-xl border p-3.5"
                       >
-                        {amenity}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-text-secondary text-sm">
-                    No amenities listed for this property.
-                  </p>
-                )}
+                        <div className="flex items-center gap-3">
+                          <div className="bg-surface-soft text-text-secondary flex h-9 w-9 items-center justify-center rounded-lg">
+                            <IconComponent className="h-4 w-4" />
+                          </div>
+
+                          <span className="text-text-primary text-sm font-medium">
+                            {item.name}
+                          </span>
+                        </div>
+
+                        <span className="bg-accent-soft text-accent rounded-md px-2 py-1 text-xs font-semibold">
+                          {item.distance}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
               </section>
             </div>
 
