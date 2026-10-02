@@ -63,7 +63,7 @@ const MOCK_BROKER: BrokerProfile = {
   verified: true,
   listings: [
     {
-      id: 101,
+      id: 2,
       title: "3 BHK Luxury Apartment in Heights",
       property_type: "flat",
       price: 24500000,
@@ -75,7 +75,7 @@ const MOCK_BROKER: BrokerProfile = {
         "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
     },
     {
-      id: 102,
+      id: 3,
       title: "Modern 2 BHK Sea Facing Flat",
       property_type: "flat",
       price: 18000000,
@@ -87,7 +87,7 @@ const MOCK_BROKER: BrokerProfile = {
         "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
     },
     {
-      id: 103,
+      id: 4,
       title: "Independent Villa / Plot Land",
       property_type: "house_land",
       price: 45000000,
