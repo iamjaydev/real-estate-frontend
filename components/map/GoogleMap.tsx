@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo } from "react";
 import {
   APIProvider,
@@ -114,41 +115,47 @@ export default function GoogleMap({
               onMouseLeave={() => onHoverListing?.(null)}
               style={{ pointerEvents: "auto", cursor: "pointer" }}
             >
-              <div
-                className={cn(
-                  "relative flex size-11 items-center justify-center transition-all duration-200",
-                  isHovered && "scale-110",
-                )}
+              <Link
+                href={`/listings/${property.id}`}
+                className="block rounded-full focus:outline-none"
+                aria-label={`View ${property.title}`}
               >
                 <div
                   className={cn(
-                    "bg-accent flex size-11 items-center justify-center rounded-full border-4 border-white text-white shadow-lg transition-all duration-200",
-                    isHovered &&
-                      "bg-accent-border shadow-[0_0_0_8px_rgba(111,99,200,0.15)]",
+                    "relative flex size-11 items-center justify-center transition-all duration-200",
+                    isHovered && "scale-110",
                   )}
                 >
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="size-5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
+                  <div
+                    className={cn(
+                      "bg-accent flex size-11 items-center justify-center rounded-full border-4 border-white text-white shadow-lg transition-all duration-200",
+                      isHovered &&
+                        "bg-accent-border shadow-[0_0_0_8px_rgba(111,99,200,0.15)]",
+                    )}
                   >
-                    <path d="M3 11.5 12 4l9 7.5" />
-                    <path d="M5.5 10.5V20h13v-9.5" />
-                    <path d="M9.5 20v-5h5v5" />
-                  </svg>
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="size-5"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M3 11.5 12 4l9 7.5" />
+                      <path d="M5.5 10.5V20h13v-9.5" />
+                      <path d="M9.5 20v-5h5v5" />
+                    </svg>
+                  </div>
+                  <div
+                    className={cn(
+                      "bg-accent absolute -bottom-1 h-3 w-3 rotate-45 border-r-4 border-b-4 border-white transition-colors duration-200",
+                      isHovered && "bg-accent-border",
+                    )}
+                  />
                 </div>
-                <div
-                  className={cn(
-                    "bg-accent absolute -bottom-1 h-3 w-3 rotate-45 border-r-4 border-b-4 border-white transition-colors duration-200",
-                    isHovered && "bg-accent-border",
-                  )}
-                />
-              </div>
+              </Link>
             </AdvancedMarker>
           );
         })}
