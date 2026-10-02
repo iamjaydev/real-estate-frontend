@@ -28,7 +28,8 @@ export default function HomePage() {
     }
   }, [router, user?.role]);
 
-  const hasInput = input.trim().length > 0 && !isLoading;
+  const canSubmit = input.trim().length > 0;
+  const hasInput = canSubmit && !isLoading;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -121,18 +122,16 @@ export default function HomePage() {
                 disabled={!hasInput}
                 aria-label="Search for homes"
                 className={`flex h-11 shrink-0 items-center gap-2 rounded-xl px-4 font-medium text-white transition-all duration-200 ${
-                  hasInput
+                  canSubmit
                     ? "bg-accent hover:bg-accent-hover shadow-accent/20 cursor-pointer shadow-md active:scale-95"
                     : "bg-accent-disabled cursor-not-allowed opacity-60"
                 }`}
               >
+                <span className="text-sm">Search</span>
                 {isLoading ? (
                   <Loader2 size={18} className="animate-spin" />
                 ) : (
-                  <>
-                    <span className="hidden text-sm sm:inline">Search</span>
-                    <ArrowRight size={18} strokeWidth={2.5} />
-                  </>
+                  <ArrowRight size={18} strokeWidth={2.5} />
                 )}
               </button>
             </div>
