@@ -6,9 +6,15 @@ import { HistoricalMessage } from "@/lib/api/chat";
 
 type ChatMessagesProps = {
   messages: HistoricalMessage[];
+  hoveredListingId?: number | null;
+  onHoverListing?: (listingId: number | null) => void;
 };
 
-export default function ChatArea({ messages }: ChatMessagesProps) {
+export default function ChatArea({
+  messages,
+  hoveredListingId = null,
+  onHoverListing,
+}: ChatMessagesProps) {
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -16,7 +22,7 @@ export default function ChatArea({ messages }: ChatMessagesProps) {
   }, [messages]);
 
   return (
-    <div className="fade-bottom scrollbar-thin scrollbar-thumb-gray-200 h-full overflow-y-auto px-5 py-6">
+    <div className="fade-bottom h-full scrollbar-thin scrollbar-thumb-gray-200 overflow-y-auto px-5 py-6">
       <div className="space-y-5">
         {messages.map((msg, index) => {
           const formattedTime = msg.created_at
@@ -33,6 +39,8 @@ export default function ChatArea({ messages }: ChatMessagesProps) {
               content={msg.message}
               time={formattedTime}
               listings={msg.listings}
+              hoveredListingId={hoveredListingId}
+              onHoverListing={onHoverListing}
             />
           );
         })}

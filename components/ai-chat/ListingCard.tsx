@@ -1,15 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import { Listing } from "@/lib/api/chat";
 import { Bed, Bath, Maximize2, MapPin } from "lucide-react";
 
 interface ListingCardProps {
   listing: Listing;
   onSelect?: (listing: Listing) => void;
+  isHovered?: boolean;
+  onHoverChange?: (isHovered: boolean) => void;
 }
 
-export default function ListingCard({ listing, onSelect }: ListingCardProps) {
+export default function ListingCard({
+  listing,
+  onSelect,
+  isHovered = false,
+  onHoverChange,
+}: ListingCardProps) {
   const formattedPrice = new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
@@ -20,11 +28,17 @@ export default function ListingCard({ listing, onSelect }: ListingCardProps) {
     <Link
       href={`/listings/${listing.id}`}
       onClick={() => onSelect?.(listing)}
-      className="group block flex cursor-pointer flex-col gap-2 rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-xs transition-all hover:border-slate-300 hover:shadow-md"
+      onMouseEnter={() => onHoverChange?.(true)}
+      onMouseLeave={() => onHoverChange?.(false)}
+      className={cn(
+        "group block flex cursor-pointer flex-col gap-2 rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-xs transition-all duration-200 hover:border-slate-300 hover:shadow-md",
+        isHovered &&
+          "border-accent-border bg-accent-soft ring-accent/20 shadow-[0_10px_25px_rgba(111,99,200,0.12)] ring-2",
+      )}
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h4 className="line-clamp-1 text-sm leading-snug font-semibold text-slate-800 transition-colors group-hover:text-blue-600">
+          <h4 className="group-hover:text-accent line-clamp-1 text-sm leading-snug font-semibold text-slate-800 transition-colors">
             {listing.title}
           </h4>
           <p className="mt-0.5 line-clamp-1 flex items-center gap-1 text-xs text-slate-500">
@@ -33,7 +47,12 @@ export default function ListingCard({ listing, onSelect }: ListingCardProps) {
             {listing.floor_number ?? "N/A"}
           </p>
         </div>
-        <span className="shrink-0 rounded-lg bg-slate-100 px-2.5 py-1 text-sm font-bold text-slate-900">
+        <span
+          className={cn(
+            "shrink-0 rounded-lg bg-slate-100 px-2.5 py-1 text-sm font-bold text-slate-900 transition-colors",
+            isHovered && "bg-accent text-white",
+          )}
+        >
           {formattedPrice}
         </span>
       </div>

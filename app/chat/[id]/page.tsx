@@ -21,6 +21,7 @@ export default function ChatPage({ params }: ChatPageProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [messages, setMessages] = useState<HistoricalMessage[]>([]);
   const [listings, setListings] = useState<Listing[]>([]);
+  const [hoveredListingId, setHoveredListingId] = useState<number | null>(null);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
 
@@ -101,11 +102,17 @@ export default function ChatPage({ params }: ChatPageProps) {
           isCollapsed ? "h-full" : "h-1/2"
         } lg:inset-0 lg:h-full`}
       >
-        <GoogleMap listings={listings} />
+        <GoogleMap
+          listings={listings}
+          hoveredListingId={hoveredListingId}
+          onHoverListing={setHoveredListingId}
+        />
       </div>
 
       <AiChat
         messages={messages}
+        hoveredListingId={hoveredListingId}
+        onHoverListing={setHoveredListingId}
         isLoading={isLoadingHistory}
         isSending={isSendingMessage}
         onSendMessage={handleSendMessage}

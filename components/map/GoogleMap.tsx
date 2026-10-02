@@ -1,8 +1,14 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { APIProvider, AdvancedMarker, Map, useMap } from "@vis.gl/react-google-maps";
+import {
+  APIProvider,
+  AdvancedMarker,
+  Map,
+  useMap,
+} from "@vis.gl/react-google-maps";
 import { Listing } from "@/lib/api/chat";
+import { cn } from "@/lib/utils";
 
 const DEFAULT_CENTER = {
   lat: 21.1702,
@@ -13,6 +19,8 @@ const DEFAULT_ZOOM = 13;
 
 interface GoogleMapProps {
   listings?: Listing[];
+  hoveredListingId?: number | null;
+  onHoverListing?: (listingId: number | null) => void;
 }
 
 function getCoordinates(property: any) {
@@ -28,7 +36,9 @@ function getCoordinates(property: any) {
 function getAverageCenter(listings: Listing[]) {
   const validCoords = listings
     .map(getCoordinates)
-    .filter((coords): coords is { lat: number; lng: number } => coords !== null);
+    .filter(
+      (coords): coords is { lat: number; lng: number } => coords !== null,
+    );
 
   if (validCoords.length === 0) return DEFAULT_CENTER;
 
@@ -37,7 +47,7 @@ function getAverageCenter(listings: Listing[]) {
       lat: acc.lat + curr.lat,
       lng: acc.lng + curr.lng,
     }),
-    { lat: 0, lng: 0 }
+    { lat: 0, lng: 0 },
   );
 
   return {
@@ -58,7 +68,11 @@ function MapPanControl({ center }: { center: { lat: number; lng: number } }) {
   return null;
 }
 
-export default function GoogleMap({ listings = [] }: GoogleMapProps) {
+export default function GoogleMap({
+  listings = [],
+  hoveredListingId = null,
+  onHoverListing,
+}: GoogleMapProps) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
 
@@ -88,14 +102,29 @@ export default function GoogleMap({ listings = [] }: GoogleMapProps) {
           const coords = getCoordinates(property);
           if (!coords) return null;
 
+          const isHovered = hoveredListingId === property.id;
+
           return (
             <AdvancedMarker
               key={`${property.id}-${index}`}
               position={coords}
               title={property.title}
             >
-              <div className="relative flex size-11 items-center justify-center">
-                <div className="bg-accent flex size-11 items-center justify-center rounded-full border-4 border-white text-white shadow-lg">
+              <div
+                className={cn(
+                  "relative flex size-11 items-center justify-center transition-all duration-200",
+                  isHovered && "scale-110",
+                )}
+                onMouseEnter={() => onHoverListing?.(property.id)}
+                onMouseLeave={() => onHoverListing?.(null)}
+              >
+                <div
+                  className={cn(
+                    "bg-accent flex size-11 items-center justify-center rounded-full border-4 border-white text-white shadow-lg transition-all duration-200",
+                    isHovered &&
+                      "bg-accent-border shadow-[0_0_0_8px_rgba(111,99,200,0.15)]",
+                  )}
+                >
                   <svg
                     viewBox="0 0 24 24"
                     className="size-5"
@@ -111,7 +140,12 @@ export default function GoogleMap({ listings = [] }: GoogleMapProps) {
                     <path d="M9.5 20v-5h5v5" />
                   </svg>
                 </div>
-                <div className="bg-accent absolute -bottom-1 h-3 w-3 rotate-45 border-r-4 border-b-4 border-white" />
+                <div
+                  className={cn(
+                    "bg-accent absolute -bottom-1 h-3 w-3 rotate-45 border-r-4 border-b-4 border-white transition-colors duration-200",
+                    isHovered && "bg-accent-border",
+                  )}
+                />
               </div>
             </AdvancedMarker>
           );

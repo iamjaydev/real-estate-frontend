@@ -10,6 +10,8 @@ type AiChatProps = {
   isCollapsed: boolean;
   onToggle: () => void;
   messages: HistoricalMessage[];
+  hoveredListingId?: number | null;
+  onHoverListing?: (listingId: number | null) => void;
   isLoading?: boolean;
   isSending?: boolean;
   onSendMessage: (text: string) => void;
@@ -19,6 +21,8 @@ export default function AiChat({
   isCollapsed,
   onToggle,
   messages,
+  hoveredListingId = null,
+  onHoverListing,
   isLoading = false,
   isSending = false,
   onSendMessage,
@@ -54,16 +58,20 @@ export default function AiChat({
       <div
         className={cn(
           "flex flex-1 flex-col overflow-hidden transition-opacity duration-300",
-          isCollapsed ? "pointer-events-none opacity-0" : "opacity-100"
+          isCollapsed ? "pointer-events-none opacity-0" : "opacity-100",
         )}
       >
         <div className="min-h-0 flex-1 overflow-hidden">
           {isLoading ? (
-            <div className="flex h-full items-center justify-center text-sm text-text-muted">
+            <div className="text-text-muted flex h-full items-center justify-center text-sm">
               Loading chat history...
             </div>
           ) : (
-            <ChatMessages messages={messages} />
+            <ChatMessages
+              messages={messages}
+              hoveredListingId={hoveredListingId}
+              onHoverListing={onHoverListing}
+            />
           )}
         </div>
 
