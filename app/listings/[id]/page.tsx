@@ -378,7 +378,7 @@ export default function PropertyDetailsPage({
 
   const broker = (property as Record<string, any>).broker || {
     id: 1,
-    name: "Rajesh Sharma",
+    name: "Jaydev Prajapati",
     years_experience: 8,
     active_listings: 14,
     properties_sold: 42,
