@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, FormEvent, ChangeEvent, FocusEvent, ReactNode } from "react";
-import { ExternalLink, Loader2 } from "lucide-react";
+import { ArrowLeft, ExternalLink, Loader2, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   createListing,
@@ -15,7 +15,7 @@ import AppHeader from "@/components/AppHeader";
 export interface CreateListingFormData {
   title: string;
   description: string;
-  property_type: BackendPropertyType;
+  property_type: BackendPropertyType | "";
   price: string;
   bedrooms: string;
   bathrooms: string;
@@ -33,7 +33,7 @@ type FormTouched = Partial<Record<keyof CreateListingFormData, boolean>>;
 const INITIAL_FORM_DATA: CreateListingFormData = {
   title: "",
   description: "",
-  property_type: "flat",
+  property_type: "",
   price: "",
   bedrooms: "",
   bathrooms: "",
@@ -44,6 +44,9 @@ const INITIAL_FORM_DATA: CreateListingFormData = {
   lat: "",
   lng: "",
 };
+
+const SAMPLE_PROPERTY_DESCRIPTION =
+  "Independent 3-bedroom house for sale in Andheri East, Mumbai, priced at INR 18,000,000. It has 3 bedrooms and 2 bathrooms on the ground floor, with 1,200 sq ft carpet area, 1,500 sq ft built-up area, and a 1,800 sq ft plot. Coordinates: latitude 19.1197, longitude 72.8468.";
 
 function validateField(
   name: keyof CreateListingFormData,
@@ -189,6 +192,10 @@ function validateForm(data: CreateListingFormData): FormErrors {
 function toCreateListingRequest(
   data: CreateListingFormData,
 ): CreateListingRequest {
+  if (!data.property_type) {
+    throw new Error("Please select a property type.");
+  }
+
   return {
     title: data.title.trim(),
 
@@ -281,6 +288,10 @@ export default function BrokerCreateListingPage() {
   const [formData, setFormData] =
     useState<CreateListingFormData>(INITIAL_FORM_DATA);
 
+  const [propertyDescription, setPropertyDescription] = useState("");
+  const [hasStartedForm, setHasStartedForm] = useState(false);
+  const [isExtracting, setIsExtracting] = useState(false);
+  const [extractionError, setExtractionError] = useState<string | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<FormTouched>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -291,6 +302,50 @@ export default function BrokerCreateListingPage() {
   const [createdListing, setCreatedListing] = useState<ListingResponse | null>(
     null,
   );
+
+  const handleExtractDetails = async () => {
+    setExtractionError(null);
+
+    if (!propertyDescription.trim()) {
+      setExtractionError("Describe the property before continuing.");
+      return;
+    }
+
+    setIsExtracting(true);
+
+    try {
+      const response = await fetch("/api/broker/listings/extract", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ description: propertyDescription }),
+      });
+      const result: {
+        formData?: CreateListingFormData;
+        error?: string;
+      } = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.error || "Unable to understand the description.",
+        );
+      }
+
+      if (!result.formData) {
+        throw new Error("The property details could not be extracted.");
+      }
+
+      setFormData({ ...INITIAL_FORM_DATA, ...result.formData });
+      setErrors({});
+      setTouched({});
+      setHasStartedForm(true);
+    } catch (error) {
+      setExtractionError(getApiErrorMessage(error));
+    } finally {
+      setIsExtracting(false);
+    }
+  };
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -418,10 +473,16 @@ export default function BrokerCreateListingPage() {
       <main className="min-h-[calc(100vh-4rem)] bg-zinc-50 px-4 py-10 text-zinc-900 sm:px-6 dark:bg-zinc-950 dark:text-zinc-100">
         <div className="mx-auto max-w-3xl">
           <div className="mb-6">
-            <h1 className="text-2xl font-semibold">Create New Listing</h1>
+            <h1 className="text-2xl font-semibold">
+              {hasStartedForm
+                ? "Review Property Details"
+                : "Create New Listing"}
+            </h1>
 
             <p className="mt-1 text-sm text-zinc-500">
-              Fill in the property details to publish a new listing.
+              {hasStartedForm
+                ? "Check the details Gemini filled in, then complete anything that is missing."
+                : "Describe the property in your own words and Gemini will fill in the listing form."}
             </p>
           </div>
 
@@ -449,7 +510,103 @@ export default function BrokerCreateListingPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} noValidate className="space-y-8">
+          {!hasStartedForm && (
+            <section className="space-y-5 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+              <div className="flex items-start gap-3">
+                <div className="rounded-lg bg-blue-50 p-2 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+                  <Sparkles className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <h2 className="font-medium">Describe the property</h2>
+                  <p className="mt-1 text-sm text-zinc-500">
+                    Include what you know, such as the property type, price,
+                    rooms, floor, areas, and location. Details you don&apos;t
+                    mention will be left for you to fill in.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPropertyDescription(SAMPLE_PROPERTY_DESCRIPTION);
+                      setExtractionError(null);
+                    }}
+                    disabled={isExtracting}
+                    className="mt-2 text-sm font-medium text-blue-700 hover:text-blue-800 disabled:opacity-50 dark:text-blue-400 dark:hover:text-blue-300"
+                  >
+                    Try an example
+                  </button>
+                </div>
+              </div>
+
+              <textarea
+                id="property-description"
+                rows={6}
+                maxLength={4000}
+                value={propertyDescription}
+                onChange={(event) => {
+                  setPropertyDescription(event.target.value);
+                  setExtractionError(null);
+                }}
+                placeholder="For example: A spacious 3 BHK apartment in Bandra, Mumbai, on the 5th floor. It has 1,150 sq ft carpet area, 1,420 sq ft built-up area, 2 bathrooms, and is priced at ₹2.4 crore..."
+                className={`${inputClass(!!extractionError)} resize-y`}
+                aria-describedby={
+                  extractionError ? "extraction-error" : "description-limit"
+                }
+                aria-invalid={!!extractionError}
+              />
+
+              <div className="flex items-center justify-between gap-4">
+                <p
+                  id={
+                    extractionError ? "extraction-error" : "description-limit"
+                  }
+                  className={`text-xs ${
+                    extractionError
+                      ? "text-red-600 dark:text-red-400"
+                      : "text-zinc-500"
+                  }`}
+                  role={extractionError ? "alert" : undefined}
+                >
+                  {extractionError ??
+                    `${propertyDescription.length}/4000 characters`}
+                </p>
+                <button
+                  type="button"
+                  onClick={handleExtractDetails}
+                  disabled={isExtracting}
+                  className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isExtracting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-4 w-4" />
+                  )}
+                  {isExtracting ? "Filling in details..." : "Continue with AI"}
+                </button>
+              </div>
+
+              <div className="border-t border-zinc-200 pt-4 dark:border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setExtractionError(null);
+                    setHasStartedForm(true);
+                  }}
+                  disabled={isExtracting}
+                  className="inline-flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900 disabled:opacity-50 dark:text-zinc-400 dark:hover:text-zinc-100"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Enter details manually
+                </button>
+              </div>
+            </section>
+          )}
+
+          <form
+            onSubmit={handleSubmit}
+            noValidate
+            hidden={!hasStartedForm}
+            className="space-y-8"
+          >
             <div className="space-y-4">
               <Field
                 label="Property Title"
